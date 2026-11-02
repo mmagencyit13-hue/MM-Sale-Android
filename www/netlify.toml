@@ -1,0 +1,47 @@
+[[redirects]]
+  from = "/erp/mm-agency-logo.png"
+  to = "/mm-agency-logo.png"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/erp/DejaVuSans.ttf"
+  to = "/DejaVuSans.ttf"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/erp/NotoSansDevanagari-Regular.ttf"
+  to = "/NotoSansDevanagari-Regular.ttf"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/erp/DejaVuSans-Bold.ttf"
+  to = "/DejaVuSans-Bold.ttf"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/erp/TimesNewRoman.ttf"
+  to = "/TimesNewRoman.ttf"
+  status = 200
+  force = true
+
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/task-sw-v377.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

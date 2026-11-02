@@ -1,0 +1,1 @@
+{"id": "/", "name": "MMA Sales", "short_name": "MMA Sales", "start_url": "/", "scope": "/", "display": "standalone", "background_color": "#f6f1ed", "theme_color": "#734354", "icons": [{"src": "app-icon-192-v49.png", "sizes": "192x192", "type": "image/png", "purpose": "any"}, {"src": "app-icon-512-v49.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}]}

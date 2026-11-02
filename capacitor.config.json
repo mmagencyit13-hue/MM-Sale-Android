@@ -1,0 +1,21 @@
+{
+  "appId": "com.mmagency.sales",
+  "appName": "MM Sale",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "hostname": "localhost"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_mma",
+      "iconColor": "#7A2D32"
+    },
+    "PushNotifications": {
+      "presentationOptions": []
+    }
+  }
+}

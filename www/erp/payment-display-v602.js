@@ -1,0 +1,13 @@
+/* Payment list display only. Stored remarks and metadata are untouched. */
+(()=>{'use strict';
+function remark(value){return String(value??'').replace(/\s*\[Payment Details\]\s*[\s\S]*?\[\/Payment Details\]\s*/gi,'\n').trim()}
+function stamp(value){const text=String(value??'').trim();if(!text)return '';if(/^\d{2}-\d{2}-\d{4}$/.test(text))return text;if(/^\d{4}-\d{2}-\d{2}$/.test(text))return text.slice(8,10)+'-'+text.slice(5,7)+'-'+text.slice(0,4);const d=new Date(text);if(Number.isNaN(d.getTime()))return text.replace(/(\d\d:\d\d:\d\d)\.\d+(?:Z|[+-]\d\d:\d\d)?$/,'$1');const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kolkata',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(d).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));return parts.day+'-'+parts.month+'-'+parts.year+' '+parts.hour+':'+parts.minute+':'+parts.second}
+const body=document.getElementById('paymentRows');
+function label(th){const c=th.cloneNode(true);c.querySelectorAll('button,select,input,svg').forEach(el=>el.remove());return c.textContent.replace(/[▼▾▲]/g,'').replace(/\s+/g,' ').trim().toLowerCase()}
+function update(){const table=body.closest('table'),headers=[...table.querySelectorAll('thead th')].map(label),remarks=headers.indexOf('remarks'),entry=headers.findIndex(x=>x==='entry date'||x==='added date'),receipt=headers.findIndex(x=>/receipt\s*(no\.?|number)/.test(x));
+ for(const tr of body.rows){const del=tr.querySelector('[data-delete-kind="payment"]'),edit=tr.querySelector('[onclick*="editPayment"]'),id=del?.dataset.deleteId||edit?.getAttribute('onclick')?.match(/editPayment\(['"]([^'"]+)/)?.[1];let row=id?PAY.find(x=>String(x.id)===String(id)):null;if(!row&&receipt>=0){const ref=tr.cells[receipt]?.textContent.trim();const matches=PAY.filter(x=>String(x.original_receipt_no||x.receipt_no)===ref);if(matches.length===1)row=matches[0]}if(!row)continue;
+ if(remarks>=0&&tr.cells[remarks]){const text=remark(row.remarks);if(tr.cells[remarks].textContent!==text)tr.cells[remarks].textContent=text}
+ if(entry>=0&&tr.cells[entry]){const fallback=window.v277PaymentMetadata?.unpack(row.remarks)?.details?.entry_date;const text=stamp(row.historical_added_date||row.created_at||fallback);if(tr.cells[entry].textContent!==text)tr.cells[entry].textContent=text}
+ }}
+const render=renderPayments;renderPayments=function(...args){const result=render.apply(this,args);update();return result};new MutationObserver(update).observe(body,{childList:true});update();window.MMAPaymentDisplay602={remark,stamp,update};
+})();

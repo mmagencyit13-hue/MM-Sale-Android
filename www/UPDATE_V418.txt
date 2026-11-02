@@ -1,0 +1,44 @@
+MMA DESKTOP V421 + MOBILE APP V4.18 COMPLETE UPDATE
+Includes all V420 / App V4.17 features plus the latest corrections.
+
+INSTALL:
+1. Unzip this combined bundle.
+2. Supabase SQL Editor: run ONLY RUN_V421_APP_ORDER_UPDATE.sql.
+   This includes the V420 patches and is safe to repeat if V420 was already run.
+   APP numbering is NOT reset. Old migrations need not be run again.
+3. Desktop Netlify site: deploy NETLIFY_DESKTOP_V421.zip.
+4. Mobile Netlify site: deploy NETLIFY_APP_V4_18.zip.
+5. Refresh desktop and close/reopen app. No gateway update required.
+   Do not deploy this outer combined bundle itself to Netlify.
+
+LATEST CHANGES:
+- Credit Limit Reached buyers: red, visible but disabled in the mobile Order Form buyer picker.
+  Uses the same server credit decision as submission; existing 90% lock / 10% release rules remain.
+- Buyer Master Cash payment-mode buyers: mustard-orange, selectable unless credit-blocked.
+- Clear button above mobile Order Form: clears buyer/supplier/date/mode/items/terms/remark/image and draft reference.
+  Current in-progress save/image work must finish before Clear. Saved orders are unaffected.
+- Buyer and Supplier city added in PDF as Name - City.
+- Payment Mode and Remark appear on separate lines.
+- Desktop Order Form has Remark; it saves to the order and is included in PDF and Export To Excel.
+- Desktop PDF and Send PDF use the EXACT SAME portrait generator as the app.
+  Send PDF opens native file sharing when supported; otherwise the PDF downloads for sending.
+- Saved app contact snapshots are used; desktop orders use available Employee Master/Team contact records.
+  Missing numbers display '-'. Existing app orders use their saved thumbnail in desktop PDF.
+
+ENVELOPE PRINT (DESKTOP BUYERS + SUPPLIERS):
+- An envelope icon is added beside Share Image in each master row.
+- Click it for an editable preview, then Print Envelope.
+- Data: party company name, city, firm address (billing address fallback), owner mobile (contact/mobile fallback).
+- Your PRE-PRINTED company envelope is 11 x 5 inch (279.4 x 127 mm), landscape.
+- Only recipient details print on the RIGHT. Company logo/address/background are not printed again.
+- Times New Roman: Name and City 16 pt; Address and Mobile 14 pt.
+- Long addresses wrap completely at fixed 14 pt; no truncation/font reduction. Very long addresses can use more than three lines.
+- Default recipient position is Left 145 mm / Top 35 mm. Preview controls allow printer alignment adjustment.
+- Set printer CUSTOM PAPER SIZE to 11 x 5 inch, scale 100%, margins none, headers/footers off.
+- First test alignment on plain paper of the same size before using your printed envelope.
+
+Retained: bold Item/Quantity-UOM, first-row item default for Add Item, one image, APP-01 numbering, new icon, header-only chat, equal bottom icon spacing, Sunday auto-P/button update, monthly attendance, all Buddy Today/Week/month/FY, Client Visiting and Buyer Wise Order Form report features.
+
+PDF_FORMAT_SAMPLE.pdf is an app-generated example layout with illustrative contacts.
+Local checks passed: repeatable SQL/credit flags/cities, disabled picker, cash colour, complete Clear, remarks edit/export, shared PDF, envelope paper/font sizes/print HTML, and script syntax.
+Live database/device/printer checks remain after deployment.

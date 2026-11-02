@@ -1,0 +1,1 @@
+(()=>{"use strict";function latest(g){return[...g.visits].filter(Boolean).sort().at(-1)||""}function compare(a,b){if(a.annual!==b.annual)return a.annual?-1:1;const ad=latest(a),bd=latest(b);if(ad&&bd&&ad!==bd)return ad.localeCompare(bd);if(!!ad!==!!bd)return ad?-1:1;return a.name.localeCompare(b.name)}window.MMAVisit458={latest:latest,compare:compare}})();

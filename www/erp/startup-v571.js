@@ -1,0 +1,1 @@
+(()=>{'use strict';window.MMAStartup571={async wait(work,label,ms=20000){let timer;try{return await Promise.race([Promise.resolve().then(work),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' timed out. Please refresh and retry.')),ms)})])}finally{clearTimeout(timer)}}};})();

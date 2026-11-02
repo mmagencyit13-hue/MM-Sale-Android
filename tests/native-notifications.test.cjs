@@ -1,0 +1,34 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const script=fs.readFileSync(require('path').join(__dirname,'../www/native-notifications-v608.js'),'utf8');
+const tick=()=>new Promise(r=>setImmediate(r));
+async function env({native=true,display='granted',request='granted',available=true,legacy=false,syncListener=false}={}){
+ const events={},domEvents={},pluginEvents={},timers=[],scheduled=[],cancelled=[],removed=[],tabs=[],opened=[],storage=new Map();let auth,channels=0,requests=0;
+ const element=()=>({hidden:false,textContent:'',disabled:false,before(){},classList:{contains:()=>false}});
+ const nodes=new Map(),buttons={};for(const k of ['[data-enable]','[data-test]','[data-lock]','small'])buttons[k]=element();
+ const panel=element();panel.querySelector=k=>buttons[k];
+ const plugin={checkPermissions:async()=>({display}),requestPermissions:async()=>{requests++;display=request;return{display}},createChannel:async()=>{channels++},schedule:async x=>{scheduled.push(...x.notifications)},cancel:async x=>cancelled.push(...x.notifications),removeDeliveredNotifications:async x=>removed.push(...x.notifications),removeAllDeliveredNotifications:async()=>removed.push('all'),addListener:async(k,f)=>{pluginEvents[k]=f;return{remove(){}}}};
+ const context={console,Promise,Error,Date,Map,Set,Number,String,JSON,document:{hidden:false,createElement:()=>panel,getElementById:k=>{if(!nodes.has(k))nodes.set(k,element());return nodes.get(k)},addEventListener:(k,f)=>domEvents[k]=f},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},Capacitor:{isNativePlatform:()=>native,isPluginAvailable:()=>available,registerPlugin:()=>plugin},ERPEmployeeAuth:{employee:{id:'alice'}},MMAWork426:{right:()=>true},ERPTaskChat377:{},MMAAppTab410:async t=>tabs.push(t),MMATasks432:{openTask:async id=>opened.push(id)},erp377ChatBridge:{openPush423:async d=>opened.push(d.room_id)},sb:{auth:{onAuthStateChange:f=>auth=f}},addEventListener:(k,f)=>(events[k]??=[]).push(f),setInterval:f=>timers.push(f)};if(syncListener){plugin.addListener=(k,f)=>{pluginEvents[k]=f;return{remove(){}}};}if(legacy){delete context.Capacitor.registerPlugin;context.Capacitor.Plugins={LocalNotifications:plugin};}context.window=context;vm.createContext(context);vm.runInContext(script,context);await tick();
+ return {c:context,buttons,scheduled,cancelled,removed,tabs,opened,storage,timers,pluginEvents,channels:()=>channels,requests:()=>requests,auth:e=>auth(e),emit:async(k,detail)=>{for(const f of events[k]||[])f({detail});await tick();await tick()}};
+}
+(async()=>{
+ let passed=0;const pass=s=>{passed++;console.log('PASS '+s)};
+ let e=await env({native:false});assert.equal(e.c.MMANativeNotifications608,undefined);pass('web/PWA behavior unchanged');
+ e=await env({display:'prompt'});assert.equal(e.requests(),0);await e.c.MMANativeNotifications608.test();assert.equal(e.requests(),1);assert.equal(e.scheduled.length,1);assert.equal(e.scheduled[0].smallIcon,'ic_stat_mma');assert.equal(e.channels(),1);pass('permission requested only from tap; immediate test uses native Android channel');
+ await e.c.MMANativeNotifications608.test(15000);assert(e.scheduled[1].schedule.at.getTime()>Date.now()+14000);pass('lock-display test scheduled by native plugin');
+ e=await env({legacy:true});await e.c.MMANativeNotifications608.test();assert.equal(e.scheduled.length,1);pass('native-injected Capacitor.Plugins bridge shows panel and schedules test without registerPlugin');
+ e=await env({legacy:true,syncListener:true});assert.equal(typeof e.c.MMANativeNotifications608.enable,'function');await e.c.MMANativeNotifications608.test();assert.equal(e.scheduled.length,1);pass('actual injected bridge synchronous listener handle does not abort module initialization');
+ e=await env({display:'denied',request:'denied'});await assert.rejects(e.c.MMANativeNotifications608.enable(),/blocked/);assert.equal(e.scheduled.length,0);pass('denied permission gives actionable status; no notification');
+ e=await env({available:false});await assert.rejects(e.c.MMANativeNotifications608.enable(),/missing/);pass('missing native plugin reported clearly');
+ e=await env();const now=new Date(Date.now()+1000).toISOString();
+ await e.emit('erp333:notifications',{type:'personal-unread',conversations:[{id:'room1',name:'Buyer',kind:'direct',count:1,last_at:now}]});
+ await e.emit('erp333:notifications',{type:'personal-unread',conversations:[{id:'room1',name:'Buyer',kind:'direct',count:1,last_at:now}]});assert.equal(e.scheduled.length,1);pass('new chat alert delivered once across repeated polling');
+ await e.emit('erp333:notifications',{type:'personal-unread',conversations:[{id:'old',count:1,last_at:'2020-01-01T00:00:00Z'}]});assert.equal(e.scheduled.length,1);pass('old unread chat history does not spam phone at launch');
+ const task={id:'task1',assignee_id:'alice',title:'Follow up',work_status:'Pending'};
+ await e.emit('erp432:work-list',{employee_id:'bob',tasks:[task]});assert.equal(e.scheduled.length,1);pass('other employee work-list ignored');
+ await e.emit('erp432:work-list',{employee_id:'alice',tasks:[task]});await e.emit('erp432:work-list',{employee_id:'alice',tasks:[task]});assert.equal(e.scheduled.length,2);pass('assigned task alert delivered once');
+ await e.emit('erp432:task-opened',{employee_id:'alice',id:'task1'});assert.equal(e.removed.length,1);pass('opening task removes its delivered notification');
+ e.pluginEvents.localNotificationActionPerformed({notification:{extra:{type:'chat',kind:'direct',room_id:'room1',recipient_id:'alice',expires_at:Date.now()+10000}}});await tick();assert.deepEqual(e.opened,['room1']);pass('notification tap opens correct chat');
+ e.pluginEvents.localNotificationActionPerformed({notification:{extra:{type:'task',task_id:'secret',recipient_id:'bob',expires_at:Date.now()+10000}}});await tick();assert(!e.opened.includes('secret'));pass('cross-account tap blocked');
+ e.c.ERPEmployeeAuth.employee=null;e.auth('SIGNED_OUT');await tick();assert(e.cancelled.some(x=>x.id===608002));assert(e.removed.includes('all'));pass('logout clears scheduled test and delivered notifications');
+ console.log(passed+' scenarios passed. Real Android device verification still required.');
+})().catch(e=>{console.error(e);process.exitCode=1});

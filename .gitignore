@@ -1,0 +1,9 @@
+node_modules/
+android/.gradle/
+android/local.properties
+android/**/build/
+*.jks
+*.keystore
+
+# Public test-only debug key, intentionally shared for test update continuity
+!test-signing/notification-debug.keystore
