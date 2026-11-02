@@ -14,7 +14,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{we
   }
   if(url.startsWith('https://fcm.googleapis.com/')){sends++;assert.equal(opts.headers.Authorization,'Bearer oauth-token');assert(JSON.parse(opts.body).message.notification);return Response.json({name:'accepted'});}
   const fn=url.split('/').at(-1),args=JSON.parse(opts.body);
-  const data={mma613_worker_authorize:args.p_key==='a'.repeat(64),mma613_claim:[job],mma613_job_valid:true,mma613_register:{ok:true},mma613_test:{ok:true,job_id:1},mma613_status:{accepted:true}};
+  const data={mma629_buddy_sync:0,mma613_worker_authorize:args.p_key==='a'.repeat(64),mma613_claim:[job],mma613_job_valid:true,mma613_register:{ok:true},mma613_test:{ok:true,job_id:1},mma613_status:{accepted:true}};
   if(fn==='mma613_finish'){finished.push(args);return Response.json(null);}
   assert(fn in data);return Response.json(data[fn]);
  }};

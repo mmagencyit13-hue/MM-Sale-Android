@@ -1,1 +1,3 @@
 window.MMA_CONFIG={employeeGateway:"https://vuogorddmdumjpquvuqz.supabase.co/functions/v1/employee-gateway",orderGateway:"https://vuogorddmdumjpquvuqz.supabase.co/functions/v1/sales-app-gateway",version:"4.81.0",imageApi:"https://vuogorddmdumjpquvuqz.supabase.co/rest/v1/rpc/erp468_image",pdfApi:"https://vuogorddmdumjpquvuqz.supabase.co/rest/v1/rpc/erp461_pdf",publicKey:"sb_publishable_UIGoEgZTS4iE6zcQ0Jbbbg_QDStT0w-"};
+
+window.MMA_CONFIG.publicSiteUrl='https://mmasales.netlify.app/';

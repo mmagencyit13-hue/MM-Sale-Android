@@ -195,7 +195,13 @@
     }
     opening = true;
     try {
-      if (data.type === 'test') await window.MMAAppTab410?.('account');
+      if (data.type === 'buddy') {
+        if (!['orders','visitors'].includes(data.report_type) || !/^\d{4}-\d{2}-\d{2}$/.test(data.report_date || '')) { pendingRoute = null; return; }
+        if (!window.erp377ChatBridge?.openBuddy539) return;
+        await window.MMAAppTab410?.('chat');
+        if (data.recipient_id !== who()) return;
+        await window.erp377ChatBridge.openBuddy539(data);
+      } else if (data.type === 'test') await window.MMAAppTab410?.('account');
       else if (data.type === 'task') {
         if (!window.MMATasks432?.openTask) return;
         await window.MMATasks432.openTask(data.task_id);
@@ -232,17 +238,18 @@
     async receiveRemote(data = {}) {
       if (!await permission(false)) return false;
       const extra = {
-        type: ['chat', 'task'].includes(data.type) ? data.type : 'test',
+        type: ['chat', 'task', 'buddy'].includes(data.type) ? data.type : 'test',
         recipient_id: String(data.recipient_id || who()),
         kind: data.kind === 'group' ? 'group' : 'direct',
-        room_id: String(data.room_id || ''), task_id: String(data.task_id || '')
+        room_id: String(data.room_id || ''), task_id: String(data.task_id || ''),
+        report_type: String(data.report_type || ''), report_date: String(data.report_date || '')
       };
-      await show(data.type === 'test' ? 'MM Agency · Firebase Test' : 'MM Agency', data.type === 'test' ? 'Server se Firebase notification pahunch gayi.' : 'New message or scheduled update received. Open the app to view.', extra);
+      await show(data.type === 'buddy' ? 'MM Buddy' : data.type === 'test' ? 'MM Agency · Firebase Test' : 'MM Agency', data.type === 'buddy' ? (data.report_type === 'orders' ? 'Kal ke order form ki report taiyar hai.' : 'Aaj ki client dating / visits ki report taiyar hai.') : data.type === 'test' ? 'Server se Firebase notification pahunch gayi.' : 'New message or scheduled update received. Open the app to view.', extra);
       return true;
     },
     openRemote(data = {}) {
-      pendingRoute = { ...data, type: ['chat', 'task'].includes(data.type) ? data.type : 'test',
-        recipient_id: String(data.recipient_id || who()), expires_at: Date.now() + 86400000 };
+      pendingRoute = { ...data, type: ['chat', 'task', 'buddy'].includes(data.type) ? data.type : 'test',
+        recipient_id: String(data.recipient_id || who()), expires_at: data.expires_at ? (Number(data.expires_at) || Date.parse(data.expires_at)) : Date.now() + 86400000 };
       void route();
     },
     get enabled() { return enabled; }

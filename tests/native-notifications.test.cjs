@@ -30,5 +30,12 @@ async function env({native=true,display='granted',request='granted',available=tr
  e.pluginEvents.localNotificationActionPerformed({notification:{extra:{type:'chat',kind:'direct',room_id:'room1',recipient_id:'alice',expires_at:Date.now()+10000}}});await tick();assert.deepEqual(e.opened,['room1']);pass('notification tap opens correct chat');
  e.pluginEvents.localNotificationActionPerformed({notification:{extra:{type:'task',task_id:'secret',recipient_id:'bob',expires_at:Date.now()+10000}}});await tick();assert(!e.opened.includes('secret'));pass('cross-account tap blocked');
  e.c.ERPEmployeeAuth.employee=null;e.auth('SIGNED_OUT');await tick();assert(e.cancelled.some(x=>x.id===608002));assert(e.removed.includes('all'));pass('logout clears scheduled test and delivered notifications');
+ e=await env();e.c.erp377ChatBridge.openBuddy539=async d=>e.opened.push({...d});
+ await e.c.MMANativeNotifications608.receiveRemote({type:'buddy',recipient_id:'alice',report_type:'orders',report_date:'2026-11-01'});
+ assert.equal(e.scheduled[0].title,'MM Buddy');assert.equal(e.scheduled[0].extra.type,'buddy');assert.equal(e.scheduled[0].extra.report_date,'2026-11-01');pass('foreground Buddy report preserves native title and route data');
+ e.c.MMANativeNotifications608.openRemote({type:'buddy',recipient_id:'alice',report_type:'visitors',report_date:'2026-11-02'});await tick();
+ assert.equal(e.opened[0].report_type,'visitors');assert.equal(e.tabs[0],'chat');pass('background Buddy notification tap opens the authenticated Buddy report');
+ e.c.MMANativeNotifications608.openRemote({type:'buddy',recipient_id:'bob',report_type:'orders',report_date:'2026-11-01'});await tick();assert.equal(e.opened.length,1);pass('Buddy report tap cannot open another employee report');
+ e.c.MMANativeNotifications608.openRemote({type:'buddy',recipient_id:'alice',report_type:'secret',report_date:'2026-11-01'});await tick();assert.equal(e.opened.length,1);pass('invalid Buddy report route rejected');
  console.log(passed+' scenarios passed. Real Android device verification still required.');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -8,9 +8,10 @@ function messageFor(job, now = Date.now()) {
   data.event_id = 'mma613-' + job.id;
   data.expires_at = String(Date.parse(job.expires_at));
   const test = data.type === 'test';
+  const buddy = data.type === 'buddy';
   return { message: { token: job.token, data,
-    notification: { title: test ? 'MM Agency · Firebase Test' : 'MM Agency',
-      body: test ? 'Server se Firebase notification pahunch gayi.' : 'New message or scheduled update. Login to view details.' },
+    notification: { title: buddy ? 'MM Buddy' : test ? 'MM Agency · Firebase Test' : 'MM Agency',
+      body: buddy ? (data.report_type === 'orders' ? 'Kal ke order form ki report taiyar hai. MM Buddy kholein.' : 'Aaj ki client dating / visits ki report taiyar hai. MM Buddy kholein.') : test ? 'Server se Firebase notification pahunch gayi.' : 'New message or scheduled update. Login to view details.' },
     android: { priority: 'HIGH', ttl: ttl + 's', notification: {
       channel_id: CHANNEL, icon: 'ic_stat_mma', sound: 'default', tag: data.event_id,
       visibility: 'PRIVATE', notification_priority: 'PRIORITY_HIGH'
@@ -69,6 +70,7 @@ async function sendFirebase(which, bearer, payload) {
 async function work() {
   // Verify credentials before leasing jobs so a missing secret does not consume retries.
   const bearer = await accessToken();
+  await rpc('mma629_buddy_sync');
   const jobs = await rpc('mma613_claim');
   let accepted=0,failed=0;
   // Bounded concurrency keeps the lease valid and avoids unbounded external requests.
