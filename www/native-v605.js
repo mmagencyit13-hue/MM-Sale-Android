@@ -2,7 +2,7 @@
 'use strict';
 const cap=window.Capacitor;
 if(!cap?.isNativePlatform?.())return;
-window.MMA_NATIVE_BUILD='6.12.0';
+window.MMA_NATIVE_BUILD='6.32.0';
 // Web Push service workers are not an Android background notification system.
 // Fail promptly instead of hanging on serviceWorker.ready in the alert setup.
 if(navigator.serviceWorker){

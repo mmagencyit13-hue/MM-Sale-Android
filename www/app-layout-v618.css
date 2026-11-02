@@ -1,0 +1,22 @@
+/* Shared mobile header: brand left, Business center, Notifications right. */
+#app .app-head{display:grid!important;grid-template-columns:auto auto minmax(95px,1fr) 38px!important;align-items:center!important;gap:6px!important}
+#app .app-head>img{grid-column:1;grid-row:1;width:38px!important;max-width:38px!important}
+#app .app-head>h1{grid-column:2;grid-row:1;margin:0!important}
+#app .app-head>#business548{grid-column:3;grid-row:1;justify-self:center;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;margin:0!important;padding:0!important;min-width:0!important}
+#app .app-head>#business548>span{font-size:10px}
+#app .app-head>#business548 select{width:100%!important;min-width:95px!important;max-width:125px!important;margin:0!important;font-size:12px!important;height:34px!important;padding:5px 8px!important}
+#app .app-head>#business548 small{display:none}
+#app .app-head>#notificationBell{grid-column:4;grid-row:1;justify-self:end;margin:0!important}
+#app .app-head>#headerChat{display:none!important}
+.ceoOrderHeader507 .orderTotals618{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.ceoOrderHeader507 .entrySummary618{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:8px;align-items:start}
+.ceoOrderHeader507 .entrySummary618>span,.ceoOrderHeader507 .entrySummary618>button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:0;background:transparent;border:0;color:inherit;font:inherit;min-width:0;text-align:left}
+.ceoOrderHeader507 .entrySummary618 small{font-size:.82em;line-height:1.1}
+.ceoOrderHeader507 .entrySummary618 b{font:inherit;font-weight:600;white-space:nowrap}
+.ceoOrderHeader507 .entrySummary618>button{cursor:pointer;text-decoration:underline}
+.commissionGraphHead618{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:14px}.commissionGraphHead618 small:last-child{text-align:right}.commissionGraphHead618 b{display:block}
+.commissionGraph618{display:flex;align-items:flex-end;justify-content:space-around;gap:14px;min-height:160px;overflow-x:auto;padding:8px 0}
+.commissionGraph618>div{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:55px}.commissionGraph618>div>span{display:block;background:#096c60;width:70%;max-width:64px;border-radius:6px 6px 0 0}.commissionGraph618 b{font-size:12px;white-space:nowrap}.commissionGraph618 strong{font-size:13px}
+
+/* V619: amount and count share one line below each label. */
+.ceoOrderHeader507 .entrySummary618 small{display:inline!important;font-size:.82em}.ceoOrderHeader507 .entrySummary618 b{white-space:nowrap}.graphMasterAction619{display:flex;justify-content:flex-end;margin:8px 0}

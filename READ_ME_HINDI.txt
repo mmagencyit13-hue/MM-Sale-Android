@@ -1,39 +1,17 @@
-MM Sale APK V629 - Buddy Notifications / PDF / WhatsApp Links
+MM Sale APK V632 — final approved app source
 
-Base: main-account setup source (V614 app). Desktop V627 unchanged.
-Package: com.mmagency.sales | Firebase: mm-agency-7ca84
-Public client links: https://mmasales.netlify.app/order-image.html#<token>
+Is ZIP mein compiled APK nahi hai. Is source ko GitHub Actions se build karein.
 
-DEPLOY IN THIS ORDER:
-1. Supabase SQL Editor: run ONLY backend/03_buddy_native_v629.sql once.
-   Do not rerun backend/01_firebase.sql; it is retained original source only.
-   The V629 script is repeatable. If schema preflight reports a mismatch, stop and send the error; changes roll back.
-2. Supabase Edge Functions > mma-firebase-push > Code > index.ts:
-   paste entire backend/mma-firebase-push-code.txt and Deploy updates.
-   Keep existing JWT and secret configuration. index.ts and TXT contain identical code.
-3. GitHub Desktop: select MM-Sale-Android. Show in Explorer.
-   Copy this ZIP's extracted CONTENTS into that repository root, replacing matching files.
-   Commit: V629 Buddy PDF and client link fixes. Push origin.
-4. GitHub Actions > Build MM Sale V629 APK > Run workflow > main.
-   Download MM-Sale-V629-APK artifact, extract app-debug.apk and install over the main-account setup app.
-   No uninstall is required when updating that setup APK with its existing signing key.
+1. GitHub Desktop mein MM-Sale-Android repository select karein. Show in Explorer.
+2. ZIP extract karein. Iske andar ke files/folders repository root mein copy/replace karein. .github, android, www, scripts, package.json sab root mein hone chahiye. .git folder ko na badlein.
+3. GitHub Desktop mein Summary: MM Sale V632 final approved changes. Commit to main, phir Push origin.
+4. GitHub website: Actions → Build MM Sale V632 APK → Run workflow → main → Run workflow.
+5. Green success ke baad run kholein. Artifacts se MM-Sale-V632-APK download karein, extract karke app-debug.apk install karein.
 
-CHANGES:
-- Buddy morning orders / client visits events mirror into the existing FCM Android queue.
-- Notification tap opens the logged-in employee's MM Buddy report; another employee's report cannot be opened.
-- Foreground notifications have a Buddy title; background uses Firebase and the same Android channel.
-- Android handles PDF/document open, save and share. Saving opens the phone's save-location picker; confirm Save there.
-- Buddy report PDFs, signed commission files, submitted order PDFs and programmatic blob downloads use Android file handling.
-- Review Order WhatsApp shares a public HTTPS mmasales.netlify.app image link, never localhost or an isolated token.
-- The original hosted viewer and token expiry/permissions are reused. No Netlify deploy is required for this fix.
+Same main package com.mmagency.sales, Firebase mm-agency-7ca84 aur same existing test signing key retained. Version 6.32.0 / code 632.
 
-TEST TOGETHER AFTER INSTALL:
-Enable Notifications once. Check Test Notification, morning Buddy order/visits alerts foreground/background/logged out; login to open report details.
-Buddy PDF download: choose destination and Save; then Open PDF. Submitted Order: Open PDF and Share.
-Review order: send generated image link to buyer/supplier, open it on another phone without the app.
-WhatsApp Send is still manual; opening the chat does not claim delivery.
+Included: approved Saturday dashboard Sale click, commission graph and right notification; V630-V632 Owner/Executive improvements; native Buddy morning report notification route; order PDF open/save; public mmasales WhatsApp image links; Back button login/draft preservation; PDF open/download/share controls.
 
-VALIDATION:
-Local JavaScript/notification regression checks, mocked native transfer and link tests, embedded PostgreSQL migration/trigger/idempotency fixtures, and Capacitor Android sync.
-Actual Supabase schema/deployment and physical device checks are still required. APK compilation happens in GitHub Actions; no local Android SDK was available.
-This remains an internal setup/debug build using the setup signing configuration. Final production signing is a separate step before final distribution.
+V632 SQL and V629 Buddy SQL/Edge already installed ho toh dubara run/deploy ki zaroorat nahi. Backend folder reference ke liye hai. Netlify desktop deploy nahi karna.
+
+Local validation: native notification, Back, Firebase, Edge and file/link tests pass; Capacitor Android sync pass; approved V632 source comparison pass. This environment has Java 17 and no Android SDK, so no Gradle APK compile or real-phone validation was performed here. GitHub workflow uses Java 21 and Android SDK.

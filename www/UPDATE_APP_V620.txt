@@ -1,0 +1,7 @@
+APP NETLIFY V620
+Total Entry summary now reads sale_invoices, payments and ledger_entries using created_at in India time. Document dates are never used for entry filtering.
+Invoice amount: total_amount. Payment: amount. Ledger: debit_amount + credit_amount. Count: saved rows. Total Entry combines these amounts and counts.
+Monthly Total Orders and its separate calendar retained. Commission master and Back fixes from V619 retained.
+No new SQL for V620. Run included V619_COMMISSION_GRAPH_MASTER.sql only if not already run.
+Deploy extracted folder to App Netlify site. APK and Desktop V617 unchanged.
+Automated date/amount/error checks passed; live data verification pending.

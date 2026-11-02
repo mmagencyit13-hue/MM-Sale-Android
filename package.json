@@ -1,6 +1,6 @@
 {
   "name": "mm-agency-android",
-  "version": "6.29.0",
+  "version": "6.32.0",
   "private": true,
   "scripts": {
     "android:init": "node scripts/android-init.mjs",
