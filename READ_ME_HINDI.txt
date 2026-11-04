@@ -1,22 +1,18 @@
-MMA Tradelink V648
+MMA Tradelink V651 — combined entry header and graph
 
-INSTALL IN THIS ORDER
-1. Supabase SQL Editor: run backend/V648_APP_UPDATE.sql. It installs the optimized graph and notification test changes. Existing transaction data is not edited.
-2. Supabase Edge Functions > mma-firebase-push > Code: replace with backend/mma-firebase-push-code.txt and Deploy. Retain the existing secrets and existing verify_jwt=false setting. No new Firebase configuration is needed.
-3. Replace GitHub repository source files, commit, push. Actions > Build MMA Tradelink V648 APK. Install as UPDATE without uninstalling.
+1. Run backend/V651_COMBINED_ENTRIES_GRAPH.sql in Supabase SQL Editor.
+2. Replace repository files, commit and push. Build MMA Tradelink V651 APK and install as UPDATE.
+3. No Firebase/Edge Function update is needed for this version. Desktop V650 export remains separate.
 
-DASHBOARD
-Overview now bypasses the old full finance/aging/ranking query and calls the source aggregation directly. Typed amount/date fields and a no-master-join default path reduce work. Previous-year comparisons and existing opening/rollover rules are retained. No transaction data is changed.
+Sale Invoice column = Sale Invoice amount/count + Ledger Sale amount/count.
+Payment column = Payment amount/count + Ledger Receipt/Payment amount/count.
+Ledger (All) is the full raw ledger reference; its Sale/Receipt portions are already included in the combined columns.
+Total Entry remains the sum/count of unique original Invoice, Payment and Ledger entries, without adding a Ledger parent twice. Do not add Ledger (All) to the two combined columns again.
 
-NOTIFICATIONS
-Enable stays disabled with Notifications Enabled only after the server confirms binding for the current login and FCM token. It unlocks after logout/account change or a failed binding. Repeated Enable clicks do not re-register a connected phone.
-Test attempts an immediate server-side send through an exclusive lease on the user's own test job; an existing worker lease cannot be sent twice. Network/FCM delivery time is not guaranteed. The 30-second countdown is the gap between separate tests, not a timer delaying the first notification. Chat/task and morning workers remain unchanged.
+Amounts are classified using saved Voucher Type first; Particular is fallback only when Voucher Type is blank. Counts for ledger categories use distinct parent ledger entries, so multiple matching lines do not inflate a category count. A mixed-voucher parent can contribute to both category counts; Total Entry counts it once.
 
-WHATSAPP
-This phone's WhatsApp ignores document EXTRA_TEXT captions. Use two explicit steps per recipient:
-1. Share PDF: select the correct Buyer/Supplier and press Send in WhatsApp, then return.
-2. Send Order Details: opens that recipient's chat with the prepared text. Press Send and return.
-Text includes Order form / Supplier Name / Buyer Name / Qty / Dated / Executive name. No PDF link is sent as the details. The app does not automatically send or verify delivery. Both share steps must be opened before the existing order-submit flow becomes ready.
+Monthly graph Sale = Invoice + Ledger Sale; Receiving = Payment + Ledger Receipt/Payment. All dates use India-time created_at, with ledger lines using the parent entry created_at. Header and graph invoke the same source aggregation for their requested date ranges, company/category and segment. Compare matching periods/filters.
 
-VALIDATION
-Automated JS and isolated PostgreSQL-compatible checks cover totals, opening/rollover handling, date/category/company filters, role checks, targeted test leasing and no duplicate send, notification button state, and PDF-plus-separate-details flow. An isolated 100,000-extra-payment-row test validated the full total without paging truncation. Physical-phone and live-production verification remains required.
+Verification fixtures reproduce the supplied amounts: Payment 20,722,129 plus Ledger Receipt/Payment 4,039,105 = 24,761,234; Sale count 15 + 87 = 102. A synthetic 354-entry dataset tests raw grand-total de-duplication and matching graph/header amounts. The exact production sale-invoice amount was not supplied (9.8L was rounded), so the synthetic invoice total is not a claim about production data. Physical-phone/live-data verification remains pending.
+
+Single Share PDF flow from V649 is retained. No separate details-message step or explanatory line was added.
