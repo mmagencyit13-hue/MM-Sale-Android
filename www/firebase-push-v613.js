@@ -17,7 +17,8 @@
   if (localPanel) localPanel.hidden = true;
   const label = panel.querySelector('small');
   let token = '', waiting = null, listenersReady = null;
-  let bound = '', binding = null;
+  let bound = '', binding = null, registerBusy648=false;
+  function registrationUI648(){const connected=!!bound&&bound===session()+':'+token;registerButton.disabled=registerBusy648||!!binding||connected;registerButton.textContent=connected?'Notifications Enabled':registerBusy648||binding?'Connecting…':'Enable Notifications';}
   const optKey = 'mma_firebase_optin_613';
   const session = () => localStorage.getItem('mma_sales_employee_session_v1') || '';
   let device = localStorage.getItem('mma_firebase_device_613');
@@ -37,15 +38,16 @@
       status('Phone permission enabled. Login once to connect notifications to your account.'); return false;
     }
     const signature = session() + ':' + token;
-    if (bound === signature) return true;
-    if (binding) { await binding; if (bound === signature) return true; }
+    if (bound === signature) {registrationUI648();return true;}
+    if (binding) { await binding; if (bound === signature) {registrationUI648();return true;} }
     binding = (async () => {
       const result = await request('register', { token });
       if (!result.ok) throw Error('Device was not connected.');
       bound = signature;
+      registrationUI648();
       status('Notifications connected. Chat and scheduled alerts can arrive after logout or with the app in background.');
     })();
-    try { await binding; return true; } finally { binding = null; }
+    try { await binding; return true; } finally { binding = null; registrationUI648(); }
   }
   const received = new Set();
   function status(text) { label.textContent = text; }
@@ -121,9 +123,10 @@
     return value;
   }
   registerButton.onclick = async () => {
-    registerButton.disabled = true;
+    if(bound&&bound===session()+':'+token){registrationUI648();return;}
+    registerBusy648=true;registrationUI648();
     try { await enable(); } catch (e) { status(e.message); }
-    finally { registerButton.disabled = false; }
+    finally {registerBusy648=false;registrationUI648();}
   };
   let nextTestAt647=0, testing647=false, cooldownTimer647=0, pollGeneration647=0;
   function testButton647(){
@@ -146,7 +149,8 @@
         throw Error(result.message||'Test could not be queued. Enable notifications and retry.');
       }
       nextTestAt647=Date.now()+30000;
-      status('Firebase test queued. Next test will be available in 30 seconds. Check the notification panel.');
+      status(result.firebase_accepted?'Firebase accepted this test. Check the notification panel.':'Firebase test queued. Check the notification panel. Next test is available after 30 seconds.');
+      if(result.firebase_accepted)return;
       let polls = 0;
       const check = async () => {
         if(generation!==pollGeneration647||login!==session())return;
@@ -166,7 +170,7 @@
   window.MMAFirebase613 = { enable, get token() { return token; },
     get serverBound() { return !!bound && bound === session() + ':' + token; },
     get ownsEvents() { return localStorage.getItem(optKey) === 'yes'; } };
-  window.sb?.auth.onAuthStateChange(() => { bound = ''; if (token && session()) void bind().catch(e => status(e.message)); });
+  window.sb?.auth.onAuthStateChange(() => { bound = ''; registrationUI648(); if (token && session()) void bind().catch(e => status(e.message)); });
   // Refresh binding after session restoration, token rotation, or a different employee signs in.
   // Logout retains the server's generic-alert association; it does not retain login credentials.
   setInterval(() => {

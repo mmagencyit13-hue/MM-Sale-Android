@@ -1,11 +1,11 @@
 {
   "name": "mma-tradelink-android",
-  "version": "6.47.0",
+  "version": "6.48.0",
   "private": true,
   "scripts": {
     "android:init": "node scripts/android-init.mjs",
     "android:sync": "cap sync android",
-    "test": "node tests/native-notifications.test.cjs && node tests/native-back.test.cjs && node tests/firebase-push.test.cjs && node tests/backend-edge.test.cjs && node tests/documents-links-v629.test.cjs && node tests/order-pdf-share-v646.test.cjs"
+    "test": "node tests/native-notifications.test.cjs && node tests/native-back.test.cjs && node tests/firebase-push.test.cjs && node tests/backend-edge.test.cjs && node tests/documents-links-v629.test.cjs && node tests/order-pdf-share-v646.test.cjs && node tests/dashboard-fast-v648.test.cjs"
   },
   "dependencies": {
     "@capacitor/android": "8.6.0",

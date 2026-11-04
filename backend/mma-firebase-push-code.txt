@@ -107,6 +107,31 @@ async function work() {
   }));
   return {accepted,failed};
 }
+// Immediate test dispatch uses the same leased queue and completion checks as the worker.
+async function immediateTest648(session,device,jobId){
+ const job=await rpc('mma648_claim_test',{p_session:session,p_device:device,p_job:jobId});
+ if(!job)return false; // Existing worker won the lease; never send the same job twice.
+ let ok=false,dead=false,reason='';
+ try{
+  if(!await rpc('mma613_job_valid',{p_id:job.id,p_lease:job.lease,p_token:job.token})){reason='Registration or event changed';}
+  else{
+   const payload=messageFor(job);
+   if(!payload){reason='Expired';}
+   else{
+    let which='main',bearer;
+    try{bearer=await accessToken('main');}catch{which='legacy';bearer=await accessToken('legacy');}
+    let r=await sendFirebase(which,bearer,payload),body=await r.json();
+    if((body?.error?.details||[]).some(d=>d.errorCode==='SENDER_ID_MISMATCH')){
+     which=which==='main'?'legacy':'main';r=await sendFirebase(which,await accessToken(which),payload);body=await r.json();
+    }
+    ok=r.ok;
+    if(!ok){const failure=firebaseFailure(r.status,body);dead=failure.dead;reason=failure.reason;if(r.status===401&&tokenCache[which])tokenCache[which].until=0;}
+   }
+  }
+ }catch{reason='Push transport failed';}
+ await rpc('mma613_finish',{p_id:job.id,p_lease:job.lease,p_ok:ok,p_dead:dead,p_error:reason,p_token:job.token});
+ return ok;
+}
 Deno.serve(async req=>{
   if(req.method==='OPTIONS') return new Response(null,{headers:cors});
   if(req.method!=='POST') return json({error:'POST required'},405);
@@ -130,6 +155,9 @@ Deno.serve(async req=>{
     }
     if(b.op==='status') return json(await rpc('mma613_status',{p_session:session,p_device:b.device_id,p_job:b.job_id}));
     const result=await rpc('mma613_test',{p_session:session,p_device:b.device_id});
+    if(result?.ok&&result.job_id){
+      try{result.firebase_accepted=await immediateTest648(session,b.device_id,result.job_id);}catch{result.firebase_accepted=false;}
+    }
     return json(result);
   } catch(e) {
     // No session tokens, Firebase credentials or upstream response bodies in logs/responses.

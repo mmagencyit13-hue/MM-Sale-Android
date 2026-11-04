@@ -1,20 +1,22 @@
-MMA Tradelink V647
+MMA Tradelink V648
 
-1. Run backend/V647_APP_UPDATE.sql once in Supabase SQL Editor. It includes the V646 graph setup plus explicit notification-test cooldown responses. No transaction entries are edited. No new Firebase config or Edge Function deployment is required for this change.
-2. Replace repository files, commit and push. Build MMA Tradelink V647 APK and install as an UPDATE. Same package/signing key as V644 onwards.
+INSTALL IN THIS ORDER
+1. Supabase SQL Editor: run backend/V648_APP_UPDATE.sql. It installs the optimized graph and notification test changes. Existing transaction data is not edited.
+2. Supabase Edge Functions > mma-firebase-push > Code: replace with backend/mma-firebase-push-code.txt and Deploy. Retain the existing secrets and existing verify_jwt=false setting. No new Firebase configuration is needed.
+3. Replace GitHub repository source files, commit, push. Actions > Build MMA Tradelink V648 APK. Install as UPDATE without uninstalling.
 
-Order PDF sharing now sends this text with the generated PDF:
-Order form
-Supplier Name- supplier name
-Buyer Name- buyer name
-Qty- total quantity (separate totals for different units)
-Dated- order date in DD-MM-YYYY
-Executive name- logged-in user who filled the order
+DASHBOARD
+Overview now bypasses the old full finance/aging/ranking query and calls the source aggregation directly. Typed amount/date fields and a no-master-join default path reduce work. Previous-year comparisons and existing opening/rollover rules are retained. No transaction data is changed.
 
-WhatsApp may show its recipient picker; choose the correct buyer/supplier, then press Send and return. Caption presentation depends on WhatsApp version. The app does not claim automatic delivery.
+NOTIFICATIONS
+Enable stays disabled with Notifications Enabled only after the server confirms binding for the current login and FCM token. It unlocks after logout/account change or a failed binding. Repeated Enable clicks do not re-register a connected phone.
+Test attempts an immediate server-side send through an exclusive lease on the user's own test job; an existing worker lease cannot be sent twice. Network/FCM delivery time is not guaranteed. The 30-second countdown is the gap between separate tests, not a timer delaying the first notification. Chat/task and morning workers remain unchanged.
 
-Test Notification has a 30-second countdown. Earlier server-side 30-second throttling produced a generic error; the SQL now returns a specific cooldown or registration-needed response. The app ignores stale status polls and does not pretend that a rejected test was queued. Other server/network/configuration errors still require actual diagnosis.
+WHATSAPP
+This phone's WhatsApp ignores document EXTRA_TEXT captions. Use two explicit steps per recipient:
+1. Share PDF: select the correct Buyer/Supplier and press Send in WhatsApp, then return.
+2. Send Order Details: opens that recipient's chat with the prepared text. Press Send and return.
+Text includes Order form / Supplier Name / Buyer Name / Qty / Dated / Executive name. No PDF link is sent as the details. The app does not automatically send or verify delivery. Both share steps must be opened before the existing order-submit flow becomes ready.
 
-Graph uses V646 calculation. If the setup SQL had not been run, this combined SQL installs it. If graph still fails, send the exact graph error screenshot and SQL result; production failure cause has not been confirmed. Total Entry remains creation-date based; graph uses invoice/ledger/receipt dates.
-
-V646 chat/PDF save fixes retained. Automatic morning notification diagnostics remain pending. Automated JS suites and isolated PostgreSQL-compatible tests passed; physical phone verification remains required.
+VALIDATION
+Automated JS and isolated PostgreSQL-compatible checks cover totals, opening/rollover handling, date/category/company filters, role checks, targeted test leasing and no duplicate send, notification button state, and PDF-plus-separate-details flow. An isolated 100,000-extra-payment-row test validated the full total without paging truncation. Physical-phone and live-production verification remains required.

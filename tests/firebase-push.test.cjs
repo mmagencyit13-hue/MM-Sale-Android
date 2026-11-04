@@ -11,7 +11,7 @@ async function env(options={}){
 (async()=>{
  let n=0;const pass=s=>console.log('PASS '+(++n)+' '+s);
  let e=await env({web:true});assert(!e.c.MMAFirebase613);pass('PWA unchanged');
- e=await env();await e.c.MMAFirebase613.enable();assert(e.c.MMAFirebase613.serverBound);assert.equal(e.calls[0].op,'register');assert.equal(e.timers.size,0);pass('sync listener bridge and token event bind authenticated device');
+ e=await env();await e.c.MMAFirebase613.enable();assert(e.c.MMAFirebase613.serverBound);assert.equal(e.calls[0].op,'register');assert.equal(e.timers.size,0);assert(e.el['[data-register]'].disabled);assert.equal(e.el['[data-register]'].textContent,'Notifications Enabled');pass('sync listener bridge and token event bind authenticated device; connected Enable button stays locked');const boundCalls=e.calls.length;await e.el['[data-register]'].onclick();assert.equal(e.calls.length,boundCalls);pass('clicking connected Enable never re-registers the phone');
  await e.el['[data-test]'].onclick();assert(e.calls.some(x=>x.op==='test'));pass('test button uses backend Firebase queue');
  const testsBefore=e.calls.filter(x=>x.op==='test').length;
  await e.el['[data-test]'].onclick();assert.equal(e.calls.filter(x=>x.op==='test').length,testsBefore);assert(e.el['[data-test]'].disabled);pass('repeat click during cooldown does not hit server');
@@ -21,7 +21,7 @@ async function env(options={}){
  assert.equal((source.match(/<button /g)||[]).length,2);pass('two visible buttons');
  await e.ev.pushNotificationReceived({id:'one',data:{type:'chat'}});await e.ev.pushNotificationReceived({id:'one',data:{type:'chat'}});assert.equal(e.received.length,1);pass('remote duplicate suppressed');
  e.ev.pushNotificationActionPerformed({notification:{data:{recipient_id:'alice',room_id:'r'}}});assert.equal(e.opened[0].room_id,'r');pass('tap uses auth-safe router');
- e.store.delete('mma_sales_employee_session_v1');e.c.ERPEmployeeAuth.employee=null;e.auth()('SIGNED_OUT');assert(!e.c.MMAFirebase613.serverBound);assert(e.c.MMAFirebase613.ownsEvents);assert(!e.calls.some(x=>x.op==='unregister'));pass('logout retains generic alert association without credentials');
+ e.store.delete('mma_sales_employee_session_v1');e.c.ERPEmployeeAuth.employee=null;e.auth()('SIGNED_OUT');assert(!e.c.MMAFirebase613.serverBound);assert(e.c.MMAFirebase613.ownsEvents);assert(!e.calls.some(x=>x.op==='unregister'));assert.equal(e.el['[data-register]'].disabled,false);pass('logout retains generic alert association without credentials and unlocks account binding control');
  await e.ev.pushNotificationReceived({id:'two',data:{type:'chat'}});assert.equal(e.received.length,2);pass('logged-out foreground push displays');
  e.store.set('mma_sales_employee_session_v1','b'.repeat(64));e.c.ERPEmployeeAuth.employee={id:'bob'};e.auth()('SIGNED_IN');await tick();assert.equal(e.calls.at(-1).session,'b'.repeat(64));pass('account switch rebinds');
  e.ev.registration({value:'rotated-token'});await tick();assert.equal(e.calls.at(-1).token,'rotated-token');pass('token rotation rebinds');
