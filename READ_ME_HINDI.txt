@@ -1,18 +1,16 @@
-MMA Tradelink V652 — three matching dashboard cards + attendance location
+MMA Tradelink V653 — FY overview separated from current entry summary
 
-Update repository files, commit and push. Build MMA Tradelink V652 APK and install as UPDATE.
-No additional SQL or Edge/Firebase deployment is required if V651_COMBINED_ENTRIES_GRAPH.sql is already installed (the previous dashboard screenshot confirms combined header data was available).
+1. Run backend/V653_FY_OVERVIEW.sql once in Supabase SQL Editor.
+2. Replace repository files, commit and push. Build MMA Tradelink V653 APK and install as UPDATE. No Firebase/Edge Function update is required.
 
-DASHBOARD
-Only Total Entry, Sale and Receiving remain at the top.
-Total Entry is the amount/count of all original Invoice, Payment and Ledger entries, including ledger returns, discounts and other voucher types, counted once per saved parent entry.
-Sale = Invoice + Ledger Sale. Receiving = Payment + Ledger Receipt/Payment. Each shows amount and smaller count in parentheses.
-The entire overview (top cards, lower Sale/Receiving totals, monthly Sale/Receiving graph) now uses ONE selected date range and ONE financial source response. It no longer mixes a short top-card range with full-FY graph totals.
-Default is Yesterday. Total Entry calendar applies the selected dates to the whole overview. Selecting This FY / This Month / Today also updates all overview figures together. Company/category filters remain shared. Every financial bucket uses Entry Date (India-time created_at; ledger lines inherit parent creation date).
-Opening, Sale Return/Discount calculations and the Order Form graph are retained. Total Orders has its existing independent order-date controls.
+TOP ENTRY SUMMARY
+The existing three cards remain Total Entry, Sale and Receiving. The top calendar and current selected Entry Date range are retained. Invoice/Payment created_at and parent Ledger created_at are used. Sale = Invoice + Ledger Sale; Receiving = Payment + Ledger Receipt/Payment. Total Entry counts original saved entries once.
 
-ATTENDANCE
-Removed the requested checked-in duty location notice from the form.
-Allow Location / Retry now routes to the installed native Geolocation controller, which can show Android's system location-enable resolution dialog, request app permission and return live coordinates after user consent. It does not silently toggle system Location. Browsers retain their existing browser permission flow. GPS/system consent cancelled or permission denied remains an error; check-in cannot fabricate coordinates.
+LOWER FINANCIAL OVERVIEW
+The lower Total Sale/Receiving cards and Sale & Receiving graph follow Financial Year / Period / Company / category filters independently. This FY 2026-27 uses the FY financial dates: invoice bill date (fallback invoice date), ledger line/header date, and payment receipt date. Opening/return/discount source rules and the existing Order Form graph are retained. Changing the top entry calendar does not change the selected FY or lower overview range.
 
-Automated checks validate single-source dashboard totals/range, exactly three summary cards, native location bridge selection and removal of the notice. Physical-phone testing of the system location dialog remains required. V649 single-PDF share behavior is retained.
+The optimized aggregation supports explicit entry and transaction date bases; older callers default to entry so header behavior is preserved. Overview requests transaction, top summary requests entry. No displayed production amount is hardcoded.
+
+Automated JS and isolated PostgreSQL-compatible tests verify backdated imports in the entry summary, exclusion from a different FY in the financial overview, correct monthly financial buckets and independent date scopes. The exact amounts visible in the user's reference screenshot require live data verification after deployment.
+
+V652 attendance notice removal/native location request and the single PDF share flow are retained.

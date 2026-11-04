@@ -1,6 +1,6 @@
 {
   "name": "mma-tradelink-android",
-  "version": "6.52.0",
+  "version": "6.53.0",
   "private": true,
   "scripts": {
     "android:init": "node scripts/android-init.mjs",
