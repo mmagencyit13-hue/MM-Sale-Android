@@ -12,8 +12,8 @@
     if (target) target.textContent = text;
     else window.alert(text);
   }
-  async function transfer(blob, name, action = 'open') {
-    if (!plugin?.[action]) throw Error('Install the updated MM Sale APK to open/save documents.');
+  async function transfer(blob, name, action = 'open', options = {}) {
+    if (!plugin?.[action]) throw Error('Install the updated MMA Tradelink APK to open/save documents.');
     if (!blob?.size || blob.size > LIMIT) throw Error('Document must be between 1 byte and 25 MB.');
     const bytes = new Uint8Array(await blob.arrayBuffer());
     let binary = '';
@@ -21,7 +21,7 @@
     const extension = ({'application/pdf':'pdf','image/png':'png','image/jpeg':'jpg','text/plain':'txt'})[blob.type] || 'bin';
     const fileName = String(name || blob.name || ('MM_Document.' + extension)).replace(/[\\/\x00-\x1f]/g, '_');
     const mime = /\.pdf$/i.test(fileName) ? 'application/pdf' : blob.type || 'application/octet-stream';
-    return plugin[action]({ base64: btoa(binary), name: fileName, mime });
+    return plugin[action]({ base64: btoa(binary), name: fileName, mime, ...options });
   }
   async function fromUrl(href, name, action) {
     if (!/^(blob:|data:)/i.test(href)) throw Error('Document URL must be a prepared local file.');
@@ -29,7 +29,7 @@
     if (!response.ok) throw Error('Document is unavailable. Please open it again.');
     return transfer(await response.blob(), name, action);
   }
-  window.MMADocuments629 = { transfer, fromUrl, report, openWhatsApp: url => plugin.openUrl({url}) };
+  window.MMADocuments629 = { transfer, fromUrl, report, shareWhatsApp: (blob, name, phone, text) => transfer(blob, name, 'shareWhatsApp', {phone, text}), openWhatsApp: url => plugin.openUrl({url}) };
   // Detached programmatic anchors do not reach document click listeners.
   const originalClick = HTMLAnchorElement.prototype.click;
   function local(anchor) { return /^(blob:|data:)/i.test(anchor.href || ''); }

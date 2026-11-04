@@ -16,6 +16,9 @@
     },
     "PushNotifications": {
       "presentationOptions": []
+    },
+    "SystemBars": {
+      "insetsHandling": "disable"
     }
   }
 }

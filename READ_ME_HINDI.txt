@@ -1,14 +1,15 @@
-MMA Tradelink V644 — Firebase config integrated; Android build and device verification pending.
+MMA Tradelink V646
 
-1. Firebase project mm-agency-7ca84 configuration is already integrated.
-   Android package: com.mmatradelink.erp
-   App name: MMA Tradelink
-2. No further Firebase JSON replacement is required.
-3. Use .github/workflows/android.yml to build after configuration is added.
-4. This is a separate application from com.mmagency.sales. Retain the same signing key for subsequent updates to this new package.
-5. Native window insets keep the app below the status bar/cutout and above navigation/keyboard.
-6. Existing native notification tests pass, but automatic morning delivery has NOT yet been verified on a device.
-7. Run V644_DIAGNOSTIC.txt in Supabase SQL Editor and return exported results to diagnose morning jobs and graph calculation.
-8. Total Entry uses created_at in India time; financial graphs use backend report functions. Do not equate these totals without matching dates and filters.
+1. Run backend/V646_DASHBOARD_GRAPH.sql once in Supabase SQL Editor for the new graph calculation. It is additive and does not edit transactions. The V644 diagnostic is NOT required for this update.
+2. Replace repository files, commit and push. Run Build MMA Tradelink V646 APK.
+3. Install as UPDATE over MMA Tradelink V644/V645. Do not uninstall the old software app. Package and signing key are unchanged from V644.
 
-This source continues APK V632. Desktop V643 remains separate and unchanged. No deployment has been performed.
+Changes:
+- Single native keyboard/system-bar inset owner and measured chat viewport.
+- Android 10+: save actual PDF bytes to Downloads/MMA Tradelink, publish only after the stream is closed. Android 9 and below: staged-file Save As fallback without large base64 Activity state. Cancel is not reported as success.
+- Share Order PDF passes the generated PDF attachment to WhatsApp / WhatsApp Business. Some WhatsApp versions show a recipient picker. Choose the correct Buyer/Supplier, press Send, then return. Automatic sending/delivery confirmation is not claimed.
+- Graph Sale = Sale Invoice + Ledger Sale; Receiving = Payment + Ledger Receipt. Server aggregates both monthly totals and graph bars from the same rows, with company/category/segment filters and separate previous-year comparisons.
+- Total Entry retains creation-date logic; graph retains invoice/ledger/receipt date logic. Backdated entries and different date ranges can produce different amounts.
+- Notification duplicate removal from V645 retained; automatic morning and server-notification diagnostics remain pending.
+
+Validation: Existing automated suites and direct PDF share flow passed. Graph SQL executed in an isolated PostgreSQL-compatible test database with fixtures for source totals, day boundaries, authorization, category/company filters and fiscal comparisons. No live production data or physical phone results were verified for V646.
