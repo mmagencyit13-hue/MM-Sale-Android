@@ -125,25 +125,43 @@
     try { await enable(); } catch (e) { status(e.message); }
     finally { registerButton.disabled = false; }
   };
+  let nextTestAt647=0, testing647=false, cooldownTimer647=0, pollGeneration647=0;
+  function testButton647(){
+    clearTimeout(cooldownTimer647);
+    const seconds=Math.max(0,Math.ceil((nextTestAt647-Date.now())/1000));
+    testButton.disabled=testing647||seconds>0;
+    testButton.textContent=seconds?'Test Notification ('+seconds+'s)':'Test Notification';
+    if(seconds)cooldownTimer647=setTimeout(testButton647,1000);
+  }
   testButton.onclick = async () => {
-    testButton.disabled = true;
+    if(testing647||Date.now()<nextTestAt647){testButton647();return;}
+    testing647=true;testButton647();
+    const generation=++pollGeneration647,login=session();
     try {
       await enable();
       const result = await request('test');
-      status('Firebase test queued. Lock the phone or return to the home screen and check the notification panel.');
+      if(result.ok===false){
+        if(result.code==='TEST_COOLDOWN')nextTestAt647=Date.now()+Math.max(1,Number(result.retry_after)||30)*1000;
+        if(result.code==='REGISTER_REQUIRED')bound='';
+        throw Error(result.message||'Test could not be queued. Enable notifications and retry.');
+      }
+      nextTestAt647=Date.now()+30000;
+      status('Firebase test queued. Next test will be available in 30 seconds. Check the notification panel.');
       let polls = 0;
       const check = async () => {
+        if(generation!==pollGeneration647||login!==session())return;
         try {
           const report = await request('status', { job_id: result.job_id });
+          if(generation!==pollGeneration647||login!==session())return;
           if (report.accepted) { status('Firebase accepted the test for this phone. Check the notification panel.'); return; }
           if (report.error) { status('Server test failed: ' + report.error); return; }
           if (++polls < 8) setTimeout(check, 5000);
           else status('Test still queued. Check the notification worker deployment and cron.');
-        } catch (e) { status(e.message); }
+        } catch (e) { if(generation===pollGeneration647&&login===session())status(e.message); }
       };
       setTimeout(check, 3000);
     } catch (e) { status(e.message || 'Notification test failed.'); }
-    finally { testButton.disabled = false; }
+    finally { testing647=false;testButton647(); }
   };
   window.MMAFirebase613 = { enable, get token() { return token; },
     get serverBound() { return !!bound && bound === session() + ':' + token; },
