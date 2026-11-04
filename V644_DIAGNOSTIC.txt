@@ -1,0 +1,24 @@
+-- READ ONLY: no application data or permissions are changed.
+-- Run in Supabase SQL Editor and export results.
+select p.proname, pg_get_functiondef(p.oid) as definition
+from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+where n.nspname='public' and p.prokind='f'
+and (p.proname in ('erp502_ceo','erp553_employee_finance','mma629_buddy_sync','mma629_buddy_event')
+ or p.proname ~ '^erp50[126]_.*financ');
+
+select jobname,schedule,active from cron.job
+where jobname ilike '%buddy%' or jobname ilike '%539%' or jobname ilike '%firebase%';
+
+select source, (created_at at time zone 'Asia/Kolkata')::date as india_day,
+ count(*) as queued, count(*) filter(where delivered_at is not null and coalesce(error,'')='') as accepted,
+ count(*) filter(where delivered_at is null) as undelivered,
+ count(*) filter(where attempts>=8) as retry_limit
+from public.mma613_jobs where created_at>=now()-interval '7 days'
+group by 1,2 order by 2 desc,1;
+
+select source,created_at,attempts,delivered_at,error
+from public.mma613_jobs where source='buddy' order by id desc limit 15;
+
+select report_type, report_date,count(*) as generated, max(expires_at) as last_expiry
+from public.erp539_buddy_push where report_date>=current_date-7
+group by 1,2 order by 2 desc,1;

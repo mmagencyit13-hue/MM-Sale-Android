@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "860779741503",
+    "project_id": "mm-agency-7ca84",
+    "storage_bucket": "mm-agency-7ca84.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860779741503:android:6ad57c55101c9ccf4d138a",
+        "android_client_info": {
+          "package_name": "com.mmagency.sales"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_MrCsTDnI-69b1Ue_W5H-sdpoC5HxhXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

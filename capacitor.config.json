@@ -1,6 +1,6 @@
 {
-  "appId": "com.mmagency.sales",
-  "appName": "MM Sale",
+  "appId": "com.mmatradelink.erp",
+  "appName": "MMA Tradelink",
   "webDir": "www",
   "server": {
     "androidScheme": "https",

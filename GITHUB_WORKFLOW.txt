@@ -1,4 +1,4 @@
-name: Build MM Sale V632 APK
+name: Build MMA Tradelink V644 APK
 on:
   workflow_dispatch:
 permissions:
@@ -26,6 +26,6 @@ jobs:
       - run: ./android/gradlew -p android assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: MM-Sale-V632-APK
+          name: MMA-Tradelink-V644-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
