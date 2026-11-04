@@ -15,5 +15,5 @@ for (const permission of ['CAMERA','RECORD_AUDIO','ACCESS_COARSE_LOCATION','ACCE
 }
 fs.writeFileSync(manifest,s);
 const gradle='android/app/build.gradle';
-s=fs.readFileSync(gradle,'utf8').replace(/versionCode \d+/, 'versionCode 651').replace(/versionName "[^"]+"/, 'versionName "6.51.0"');
+s=fs.readFileSync(gradle,'utf8').replace(/versionCode \d+/, 'versionCode 652').replace(/versionName "[^"]+"/, 'versionName "6.52.0"');
 fs.writeFileSync(gradle,s);

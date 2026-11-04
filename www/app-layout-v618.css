@@ -9,7 +9,7 @@
 #app .app-head>#notificationBell{grid-column:4;grid-row:1;justify-self:end;margin:0!important}
 #app .app-head>#headerChat{display:none!important}
 .ceoOrderHeader507 .orderTotals618{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-.ceoOrderHeader507 .entrySummary618{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:8px;align-items:start}
+.ceoOrderHeader507 .entrySummary618{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;align-items:start}
 .ceoOrderHeader507 .entrySummary618>span,.ceoOrderHeader507 .entrySummary618>button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:0;background:transparent;border:0;color:inherit;font:inherit;min-width:0;text-align:left}
 .ceoOrderHeader507 .entrySummary618 small{font-size:.82em;line-height:1.1}
 .ceoOrderHeader507 .entrySummary618 b{font:inherit;font-weight:600;white-space:nowrap}
