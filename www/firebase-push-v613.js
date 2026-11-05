@@ -13,6 +13,9 @@
   document.getElementById('accountInstall').before(panel);
   const registerButton = panel.querySelector('[data-register]');
   const testButton = panel.querySelector('[data-test]');
+  registerButton.hidden = true;
+  const dialogEnable = document.getElementById('enableNotifications');
+  if (dialogEnable?.style) dialogEnable.style.display = 'none';
   const localPanel = document.getElementById('accountPush424');
   if (localPanel) localPanel.hidden = true;
   const label = panel.querySelector('small');
@@ -167,7 +170,29 @@
     } catch (e) { status(e.message || 'Notification test failed.'); }
     finally { testing647=false;testButton647(); }
   };
-  window.MMAFirebase613 = { enable, get token() { return token; },
+  let loginSetup = null;
+  let setupSession = '';
+  function onLogin() {
+    const login = session();
+    if (!login || !window.ERPEmployeeAuth?.employee?.id) return Promise.resolve();
+    if (login === setupSession) return loginSetup || Promise.resolve();
+    setupSession = login;
+    loginSetup = (async () => {
+      if (!push) throw Error('Android notifications are unavailable.');
+      let permission = await push.checkPermissions();
+      if (permission.receive === 'prompt' || permission.receive === 'prompt-with-rationale') {
+        permission = await push.requestPermissions();
+      }
+      if (login !== session()) return;
+      if (permission.receive !== 'granted') {
+        status('Allow notifications in Android Settings for MMA Tradelink.');
+        return;
+      }
+      void enable().catch(e => status(e.message));
+    })().catch(e => status(e.message));
+    return loginSetup;
+  }
+  window.MMAFirebase613 = { enable, onLogin, get token() { return token; },
     get serverBound() { return !!bound && bound === session() + ':' + token; },
     get ownsEvents() { return localStorage.getItem(optKey) === 'yes'; } };
   window.sb?.auth.onAuthStateChange(() => { bound = ''; registrationUI648(); if (token && session()) void bind().catch(e => status(e.message)); });

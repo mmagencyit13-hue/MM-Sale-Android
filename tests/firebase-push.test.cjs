@@ -18,13 +18,16 @@ async function env(options={}){
  e.c.Date=class extends Date{static now(){return Date.now()+31000}};
  await e.el['[data-test]'].onclick();assert.equal(e.calls.filter(x=>x.op==='test').length,testsBefore+1);pass('next test is allowed after 30 seconds');
 
- assert.equal((source.match(/<button /g)||[]).length,2);pass('two visible buttons');
+ assert(e.el['[data-register]'].hidden);assert(!e.el['[data-test]'].hidden);pass('only the test button is visible');
  await e.ev.pushNotificationReceived({id:'one',data:{type:'chat'}});await e.ev.pushNotificationReceived({id:'one',data:{type:'chat'}});assert.equal(e.received.length,1);pass('remote duplicate suppressed');
  e.ev.pushNotificationActionPerformed({notification:{data:{recipient_id:'alice',room_id:'r'}}});assert.equal(e.opened[0].room_id,'r');pass('tap uses auth-safe router');
  e.store.delete('mma_sales_employee_session_v1');e.c.ERPEmployeeAuth.employee=null;e.auth()('SIGNED_OUT');assert(!e.c.MMAFirebase613.serverBound);assert(e.c.MMAFirebase613.ownsEvents);assert(!e.calls.some(x=>x.op==='unregister'));assert.equal(e.el['[data-register]'].disabled,false);pass('logout retains generic alert association without credentials and unlocks account binding control');
  await e.ev.pushNotificationReceived({id:'two',data:{type:'chat'}});assert.equal(e.received.length,2);pass('logged-out foreground push displays');
  e.store.set('mma_sales_employee_session_v1','b'.repeat(64));e.c.ERPEmployeeAuth.employee={id:'bob'};e.auth()('SIGNED_IN');await tick();assert.equal(e.calls.at(-1).session,'b'.repeat(64));pass('account switch rebinds');
  e.ev.registration({value:'rotated-token'});await tick();assert.equal(e.calls.at(-1).token,'rotated-token');pass('token rotation rebinds');
+ e=await env();await Promise.all([e.c.MMAFirebase613.onLogin(),e.c.MMAFirebase613.onLogin()]);await tick();
+ assert(e.c.MMAFirebase613.serverBound);assert.equal(e.calls.filter(x=>x.op==='register').length,1);pass('login binds notifications once without pressing Enable');
+ e=await env({denied:true});await e.c.MMAFirebase613.onLogin();assert.equal(e.calls.length,0);assert.match(e.el.small.textContent,/Android Settings/);pass('login honors denied Android permission');
  e=await env({backendFail:true});await assert.rejects(e.c.MMAFirebase613.enable(),/backend failed/);assert(!e.c.MMAFirebase613.serverBound);pass('backend failure does not claim connection');
  e=await env({testResponse:{ok:false,code:'TEST_COOLDOWN',retry_after:12,message:'Wait 12 seconds before the next test.'}});await e.el['[data-test]'].onclick();assert.match(e.el.small.textContent,/Wait 12 seconds/);assert(e.el['[data-test]'].disabled);pass('server cooldown is shown accurately without claiming a queued test');
  e=await env({denied:true});await assert.rejects(e.c.MMAFirebase613.enable(),/Allow notifications/);assert.equal(e.calls.length,0);pass('denied permission blocks registration');

@@ -14,6 +14,13 @@ public class MMABiometricPlugin extends Plugin {
     private boolean showing;
 
     @PluginMethod
+    public void available(PluginCall call) {
+        int status = BiometricManager.from(getContext())
+            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        call.resolve(new JSObject().put("ok", status == BiometricManager.BIOMETRIC_SUCCESS));
+    }
+
+    @PluginMethod
     public void unlock(PluginCall call) {
         getActivity().runOnUiThread(() -> {
             if (showing) {

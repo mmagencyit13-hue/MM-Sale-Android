@@ -1,0 +1,6 @@
+MMA Tradelink V655 source preview, based on V654.
+
+- On Android login/session restore, notification setup requests the Android permission when needed and connects the device automatically. Test Notification remains visible. If permission is denied, Android Settings controls it.
+- Login offers fingerprint unlock when a supported strong biometric is enrolled. Enable Fingerprint opens the Android prompt. Successful verification saves the preference and shows OK. ERP password remains available.
+- Each morning Order Form and Client Dating update has a separate text bubble and image bubble in Android MM Buddy.
+- Live morning push and individual employee report delivery are still pending. This is a source ZIP and no APK or device run has been verified.

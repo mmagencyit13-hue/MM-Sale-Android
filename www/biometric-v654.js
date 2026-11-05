@@ -27,6 +27,36 @@
       button.disabled = false;
     }
   });
+  const offer = document.getElementById('biometricOffer655');
+  const offerEnable = document.getElementById('biometricOfferEnable655');
+  const offerStatus = document.getElementById('biometricOfferStatus655');
+  const offered = new Set();
+  window.MMAOnboard655 = async function (employeeId) {
+    if (window.ERPEmployeeAuth?.employee?.id !== employeeId ||
+        localStorage.getItem(key) || offered.has(employeeId) || !offer || offer.open) return;
+    try {
+      const result = await plugin.available();
+      if (!result.ok || window.ERPEmployeeAuth?.employee?.id !== employeeId || offered.has(employeeId)) return;
+      offered.add(employeeId);
+      offerStatus.textContent = '';
+      offer.showModal();
+    } catch {}
+  };
+  offerEnable?.addEventListener('click', async () => {
+    const employeeId = window.ERPEmployeeAuth?.employee?.id;
+    offerEnable.disabled = true;
+    try {
+      await plugin.unlock();
+      if (window.ERPEmployeeAuth?.employee?.id !== employeeId) return;
+      localStorage.setItem(key, '1');
+      refreshLabel();
+      offerStatus.textContent = 'Fingerprint unlock is enabled.';
+      offer.querySelector('form button').textContent = 'OK';
+    } catch (error) {
+      offerStatus.textContent = error.message || 'Fingerprint setup could not finish.';
+      offerEnable.disabled = false;
+    }
+  });
   window.MMARestore654 = async function () {
     if (localStorage.getItem(key) && localStorage.getItem(sessionKey)) {
       try {
