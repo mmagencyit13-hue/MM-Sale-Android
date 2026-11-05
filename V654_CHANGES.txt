@@ -1,0 +1,9 @@
+MMA Tradelink V654 source preview, based on locked V653.
+
+- Android MM Buddy displays Hindi order text and English client visit text alongside existing images. It uses the report date and supplied unit breakdown. Legacy unclassified quantities have no unit label. Missing meter data is shown as a dash.
+- Removed the Android WebView 3-hour inactivity logout. Server session validation and manual/device sign-out remain in place. The deployed server session lifetime has not been verified.
+- My Account has optional Android biometric unlock on cold launch. Cancel the prompt or choose Use ERP password to reach the standard login. Requires a strong biometric enrolled in Android Settings.
+- Android APK compilation, installation, biometric device behavior and live morning push remain unverified. No live SQL, Edge Functions or deployments changed.
+- Individual owner-chat delivery and daily replacement are pending. The deployed morning report producer/row schema and deployed Team Chat visibility/write logic are required before routing private data. The preview does not send individual messages.
+- backend/V654_BUDDY_DIAGNOSTIC.sql contains read-only counts to locate the morning push failure. V653 FY SQL remains the baseline and is not a new V654 requirement.
+- To build the preview in the existing repository, use .github/workflows/android.yml.
