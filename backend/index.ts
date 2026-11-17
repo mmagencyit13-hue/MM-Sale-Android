@@ -69,8 +69,17 @@ async function sendFirebase(which, bearer, payload) {
 }
 async function work() {
   // Verify credentials before leasing jobs so a missing secret does not consume retries.
-  const bearer = await accessToken();
-  await rpc('mma629_buddy_sync');
+  let project = Deno.env.get(PROJECTS.main.secret) ? 'main' : 'legacy';
+  let bearer;
+  try { bearer = await accessToken(project); }
+  catch {
+    project = project === 'main' ? 'legacy' : 'main';
+    bearer = await accessToken(project);
+  }
+  // A report-source error must not stop queued notifications from reaching phones.
+  let buddySync = true;
+  try { await rpc('mma629_buddy_sync'); }
+  catch { buddySync = false; console.error('Buddy notification source sync failed'); }
   const jobs = await rpc('mma613_claim');
   let accepted=0,failed=0;
   // Bounded concurrency keeps the lease valid and avoids unbounded external requests.
@@ -83,13 +92,13 @@ async function work() {
         const payload=messageFor(job);
         if (!payload) {ok=true;reason='Expired';}
         else {
-          let which = 'legacy';
+          let which = project;
           let r = await sendFirebase(which, bearer, payload);
           let result = await r.json();
           // A rejected sender means this token belongs to the other configured project.
           // Never retry accepted sends or ambiguous transport failures (duplicate risk).
           if ((result?.error?.details || []).some(d => d.errorCode === 'SENDER_ID_MISMATCH')) {
-            which = 'main';
+            which = which === 'main' ? 'legacy' : 'main';
             r = await sendFirebase(which, await accessToken(which), payload);
             result = await r.json();
           }
@@ -105,7 +114,7 @@ async function work() {
     await rpc('mma613_finish',{p_id:job.id,p_lease:job.lease,p_ok:ok,p_dead:dead,p_error:reason,p_token:job.token});
     if(ok) accepted++;else failed++;
   }));
-  return {accepted,failed};
+  return {accepted,failed,buddySync};
 }
 // Immediate test dispatch uses the same leased queue and completion checks as the worker.
 async function immediateTest648(session,device,jobId){
