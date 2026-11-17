@@ -8,6 +8,7 @@ async function restore660(){
         if(!employee)q("loginMessage").textContent="Waiting for a connection to restore your session.";
     },8000);
     try{
+        if(window.MMABiometric661&&!(await window.MMABiometric661.unlock()))return;
         const restored=await ERPEmployeeAuth.refresh();
         if(!employee&&restored)await start(restored);
         if(!restored&&q("loginMessage").textContent.startsWith("Restoring"))q("loginMessage").textContent="";

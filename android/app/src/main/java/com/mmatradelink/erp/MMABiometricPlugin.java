@@ -11,48 +11,53 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 @CapacitorPlugin(name = "MMABiometric")
 public class MMABiometricPlugin extends Plugin {
-    private boolean showing;
+    private static final int AUTHENTICATORS = BiometricManager.Authenticators.BIOMETRIC_STRONG;
+    private boolean authenticating;
 
-    @PluginMethod
-    public void available(PluginCall call) {
-        int status = BiometricManager.from(getContext())
-            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-        call.resolve(new JSObject().put("ok", status == BiometricManager.BIOMETRIC_SUCCESS));
+    private boolean available() {
+        return BiometricManager.from(getContext()).canAuthenticate(AUTHENTICATORS)
+                == BiometricManager.BIOMETRIC_SUCCESS;
     }
 
     @PluginMethod
-    public void unlock(PluginCall call) {
-        getActivity().runOnUiThread(() -> {
-            if (showing) {
-                call.reject("Authentication is already open.");
-                return;
-            }
-            int authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG;
-            if (BiometricManager.from(getContext()).canAuthenticate(authenticators)
-                    != BiometricManager.BIOMETRIC_SUCCESS) {
-                call.reject("Set up a supported biometric in Android Settings.");
-                return;
-            }
-            showing = true;
-            BiometricPrompt prompt = new BiometricPrompt(getActivity(),
-                ContextCompat.getMainExecutor(getContext()), new BiometricPrompt.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                        showing = false;
-                        call.resolve(new JSObject().put("ok", true));
-                    }
+    public void status(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("available", available());
+        call.resolve(result);
+    }
 
-                    @Override
-                    public void onAuthenticationError(int code, CharSequence message) {
-                        showing = false;
-                        call.reject(message.toString());
-                    }
-                });
+    @PluginMethod
+    public void authenticate(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            if (authenticating) {
+                call.reject("Biometric authentication is already in progress.");
+                return;
+            }
+            if (!available()) {
+                call.reject("Set up fingerprint or supported biometrics in Android settings.");
+                return;
+            }
+            authenticating = true;
+            BiometricPrompt prompt = new BiometricPrompt(
+                    getActivity(), ContextCompat.getMainExecutor(getContext()),
+                    new BiometricPrompt.AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                            authenticating = false;
+                            call.resolve();
+                        }
+
+                        @Override
+                        public void onAuthenticationError(int code, CharSequence message) {
+                            authenticating = false;
+                            call.reject(message.toString());
+                        }
+                    });
             prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock MMA Tradelink")
-                .setAllowedAuthenticators(authenticators)
-                .setNegativeButtonText("Use ERP password")
-                .build());
+                    .setTitle("Unlock MMA Tradelink")
+                    .setAllowedAuthenticators(AUTHENTICATORS)
+                    .setNegativeButtonText("Cancel")
+                    .build());
         });
     }
 }
