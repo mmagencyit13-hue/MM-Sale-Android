@@ -14,6 +14,36 @@
     document.getElementById('accountInstall').before(settings);
     const toggle=settings.querySelector('button');
     const status=settings.querySelector('p');
+    const loginButton=document.createElement('button');
+    loginButton.type='button';
+    loginButton.className='outline';
+    loginButton.textContent='Sign in with Biometrics';
+    loginButton.hidden=true;
+    const form=document.getElementById('loginForm');
+    form.append(loginButton);
+    async function showLogin(){
+        try{
+            const state=await biometric.status();
+            loginButton.hidden=!(enabled()&&state.available&&state.saved&&!localStorage.getItem('mma_sales_employee_session_v1'));
+        }catch{loginButton.hidden=true;}
+    }
+    loginButton.onclick=async()=>{
+        const submit=form.querySelector('[type=submit]');
+        if(submit?.dataset.appBusy433==='true')return;
+        loginButton.disabled=true;
+        try{
+            await window.MMAActivity660?.pendingLogout();
+            const result=await biometric.readLogin();
+            const saved=JSON.parse(result.credentials);
+            await window.MMABiometricLogin666(saved.login,saved.password);
+        }catch(error){
+            document.getElementById('loginMessage').textContent=error.message||'Biometric login failed. Use your password.';
+        }finally{loginButton.disabled=false;}
+    };
+    sb.auth.onAuthStateChange(()=>void showLogin());
+    window.addEventListener('pageshow',showLogin);
+    void showLogin();
+
     function draw(){
         toggle.textContent=enabled()?'Disable Biometric Unlock':'Enable Biometric Unlock';
     }
@@ -22,9 +52,9 @@
         try{
             const wasEnabled=enabled();
             await biometric.authenticate();
-            if(wasEnabled)localStorage.removeItem(key);
+            if(wasEnabled){await biometric.clearLogin();localStorage.removeItem(key);}
             else localStorage.setItem(key,'yes');
-            status.textContent=wasEnabled?'Biometric unlock disabled.':'Biometric unlock enabled for this phone.';
+            status.textContent=wasEnabled?'Biometric unlock disabled.':'Biometric unlock enabled. Sign in with your password once to set up biometric re-login.';
         }catch(error){
             status.textContent=error.message||'Biometric authentication was not completed.';
         }finally{
@@ -37,6 +67,16 @@
     let unlocked=false;
     let unlocking;
     window.MMABiometric661={
+        get signingIn(){return loginButton.disabled;},
+        async enroll(login,password){
+            if(!enabled())return;
+            const state=await biometric.status();
+            if(!state.available)return;
+            // Replace credentials after a different user or password signs in.
+            await biometric.clearLogin();
+            await biometric.saveLogin({credentials:JSON.stringify({login,password})});
+            void showLogin();
+        },
         unlock(){
             if(unlocked||!enabled())return Promise.resolve(true);
             if(unlocking)return unlocking;

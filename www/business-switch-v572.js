@@ -1,6 +1,6 @@
 /* V572: continuity during an authenticated business switch. This never logs in or grants data access. */
 (()=>{'use strict';
-const key='mma_switch572',limit=10800000,stamp=()=>Date.now();let pending=null,host=null,timer=null,observer=null;
+const key='mma_switch572',limit=96*60*60*1000,stamp=()=>Date.now();let pending=null,host=null,timer=null,observer=null;
 const prefix=segment=>segment==='grey'?'grey:mma_screen422:':'mma_screen422:';
 function safeClone(root){const copy=root.cloneNode(true);copy.querySelectorAll('script,iframe,object,embed,video,audio,canvas').forEach(n=>n.remove());for(const n of [copy,...copy.querySelectorAll('*')]){for(const a of [...n.attributes])if(/^on/i.test(a.name)||a.name==='srcdoc')n.removeAttribute(a.name);if(n.tagName==='INPUT'||n.tagName==='TEXTAREA'){n.value='';n.removeAttribute('value');if(n.tagName==='TEXTAREA')n.textContent='';}if(n.tagName==='A')n.removeAttribute('href');}copy.classList.remove('hide');return copy.outerHTML;}
 function valid(value){const now=stamp(),token=localStorage.getItem('mma_sales_employee_session_v1'),business=new URLSearchParams(location.search).get('business');return value&&token&&value.token===token&&value.actor&&/\b(ceo|admin|administrator)\b/i.test(value.role||'')&&now-value.at>=0&&now-value.at<30000&&now-value.activity>=0&&now-value.activity<limit&&business===value.next&&['grey','readymade'].includes(value.next);}

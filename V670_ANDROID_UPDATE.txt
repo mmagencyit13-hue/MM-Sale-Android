@@ -1,0 +1,6 @@
+Android V670
+1. Before installing the new APK, run backend/V670_ANDROID_SESSION_96H.sql and backend/V666_BUDDY_MORNING.sql in the Supabase SQL Editor. V667 Change Password must already be installed (it is shared with Desktop and Sale App and does not need to be run again).
+2. Build with the included GitHub Actions workflow named Build MMA Tradelink V670 APK. Download the MMA-Tradelink-V670-APK artifact. Keep the existing Android application ID and signing key for an in-place update.
+3. Sign in again once on V670 to start a 96-hour inactivity session. To enable biometric sign-in after expiration, turn on Biometric Unlock in Account and sign in with the current password once to complete the fingerprint prompt. Existing saved biometric credentials also work if still valid. After a password change, sign in with the new password once to renew them.
+4. Forgot / Change Password on the login page requires the current password. If the employee does not remember it, the administrator uses Employee Master > Reset.
+5. The morning SQL installs a retry bridge from the existing MM Buddy report queue to Firebase. Confirm notification permission is enabled on the phone. If there is still no morning alert, backend/V666_BACKEND_CHECK.sql shows whether reports were generated, queued, and accepted by Firebase.
