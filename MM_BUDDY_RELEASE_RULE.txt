@@ -1,0 +1,6 @@
+MM Buddy release rule
+
+Every MM Buddy addition, removal, design change or role-access change applies to App Netlify and Android APK. Implement the feature in the App Netlify source and carry the same feature code to the Android www source. Check both versions for the same menu, report format, and role rules. Keep browser and native document opening appropriate to each platform.
+If the APK build is deferred, include all accumulated MM Buddy changes in the next APK source release before running GitHub Actions. V673 Supplier Outstanding is one such deferred change.
+
+For new or changed features, check with a Team ID as well as Admin. Verify the allowed action under Team Role with unrelated permissions switched off. Read-only downloads must not submit a form or depend on Save permission.

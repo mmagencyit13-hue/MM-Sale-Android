@@ -1,0 +1,7 @@
+MMA Tradelink V671
+
+1. Run V671_BUDDY_SUPPLIER_OUTSTANDING.sql once in the Supabase SQL Editor. The same file is included under backend/.
+2. Deploy the V671 Desktop_Netlify and App_Netlify folders to their respective existing sites.
+3. Commit the APK source and run Build MMA Tradelink V671 APK in GitHub Actions. Download the MMA-Tradelink-V671-APK artifact. Use the same Android signing key for an in-place update.
+4. In MM Buddy, send Hi and compare the services on desktop and mobile. Check the previous day's Order Form and today's Client Dating report. The existing morning schedule supplies the reports.
+5. Open a named Buyer or Supplier and use Export to download the linked-party table as PDF or XLSX. Sales Executive accounts still have their existing Buyer Outstanding option.

@@ -1,0 +1,7 @@
+.partyExport671,.buddyOutstanding671{color:#172334;background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:18px;width:min(90vw,550px);max-height:85vh;overflow:auto}
+.partyExport671::backdrop,.buddyOutstanding671::backdrop{background:#16233180}
+.buddyOutstanding671 header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.buddyOutstanding671 table{border-collapse:collapse;width:100%;font-size:.9rem}
+.buddyOutstanding671 th,.buddyOutstanding671 td{border-bottom:1px solid #dce4e8;text-align:left;padding:7px}
+.buddyOutstanding671 th:last-child,.buddyOutstanding671 td:last-child{text-align:right;white-space:nowrap}
+.buddyOutstanding671 [data-results]>button{display:block;margin:6px 0;text-align:left}

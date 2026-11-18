@@ -1,0 +1,17 @@
+MMA Tradelink APK V678 (Android version 6.78.0)
+
+This release carries the MM Buddy and linked-party export updates from locked App V676.
+- Supplier Outstanding stays in chat, including supplier matches, outstanding summary and PDF download.
+- Supplier Outstanding messages do not enter Buddy Memory.
+- Authorized Team IDs can export linked-party tables to PDF or XLSX with view access.
+- Existing Android 96-hour inactivity session, biometric sign-in, password change and Firebase notification integration are included.
+
+Desktop V677 remains the locked desktop release for the Desktop CRM Follow Up Done edits.
+
+1. Extract the ZIP and commit its contents at the root of the existing GitHub Android repository. Include the .github folder and android/gradle wrapper files.
+2. Open Actions > Build MMA Tradelink V678 APK > Run workflow. Download MMA-Tradelink-V678-APK from the completed run.
+3. Keep the same Android application ID and signing key as the installed APK for an in-place update.
+
+If V673_BUDDY_SUPPLIER_OUTSTANDING.sql already ran in Supabase, do not rerun it for this release. For installations that did not complete the previous Android backend setup, see V670_ANDROID_UPDATE.txt.
+
+For subsequent releases, carry every MM Buddy addition, removal, layout update and role-access change into both the App and Android builds. Verify the shared feature source against the locked App before publishing.

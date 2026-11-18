@@ -14,6 +14,3 @@ for (const permission of ['CAMERA','RECORD_AUDIO','ACCESS_COARSE_LOCATION','ACCE
  if (!s.includes('android.permission.'+permission)) s=s.replace('</manifest>',`<uses-permission android:name="android.permission.${permission}" /></manifest>`);
 }
 fs.writeFileSync(manifest,s);
-const gradle='android/app/build.gradle';
-s=fs.readFileSync(gradle,'utf8').replace(/versionCode \d+/, 'versionCode 664').replace(/versionName "[^"]+"/, 'versionName "6.64.0"');
-fs.writeFileSync(gradle,s);

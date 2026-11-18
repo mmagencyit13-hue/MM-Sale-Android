@@ -1,0 +1,5 @@
+APK V679 combines the prior V678 changes with Buddy document options.
+Buyer Outstanding, Supplier Outstanding, Ledger and other generated Buddy PDFs now show Open PDF and Download PDF. The main app also offers Share PDF when using the existing Ledger PDF dialog.
+For Buddy images, tap the image or Open / Download, then choose Open Image for the Buddy viewer or Download Image to save a copy.
+Commit the ZIP contents, including .github, to the existing repository and run Build MMA Tradelink V679 APK once. The application ID and included signing configuration match the prior build.
+App Netlify V679 carries the same Buddy document changes. There are no additional Supabase migrations for the file options.
