@@ -95,7 +95,7 @@
       sync();
       const data = entries.find(entry => String(entry.id) === id)?.payload.data;
       if (!allowed() || !data) return;
-      const rows = data.rows.map(row => ({name:row.name, amount:Number(row.outstanding)})).filter(row => Math.round(row.amount * 100) > 0);
+      const rows = data.rows.map(row => ({name:row.name, amount:Number(row.outstanding), outstandingDate:row.outstanding_date||row.last_received_date})).filter(row => Math.round(row.amount * 100) > 0);
       try {
         const blob = window.MMAOutstanding546.pdf({
           name:data.name, rows, positiveTotal:rows.reduce((total,row) => total + row.amount,0),

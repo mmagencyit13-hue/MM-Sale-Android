@@ -4,6 +4,29 @@
   const xml = value => String(value ?? '').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]/g, '').replace(/[&<>]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;'}[c]));
   const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
+  const indiaDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit'
+  });
+  function daysSince(received, today = indiaDate.format(new Date())) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(received || '')) return '';
+    const start = Date.parse(received + 'T00:00:00Z');
+    const end = Date.parse(today + 'T00:00:00Z');
+    return Number.isFinite(start) && start <= end ? (end - start) / 86400000 : '';
+  }
+
+  function outstandingDate(entries, today = indiaDate.format(new Date())) {
+    let receiving = '', saleReturn = '', sale = '';
+    for (const row of entries) {
+      const date = String(row.date || '').slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) continue;
+      const debit = Number(row.dr) || 0, credit = Number(row.cr) || 0;
+      if (['receipt', 'payment', 'ledger_receipt'].includes(row.kind) && credit > debit && date > receiving) receiving = date;
+      if (['gr', 'returns'].includes(row.kind) && credit > debit && date > saleReturn) saleReturn = date;
+      if (['invoice', 'sale', 'ledger_sale'].includes(row.kind) && debit > credit && date > sale) sale = date;
+    }
+    return receiving || saleReturn || sale;
+  }
+
   async function excel(columns, rows) {
     const zip = new window.JSZip();
     zip.file('[Content_Types].xml', '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
@@ -116,7 +139,7 @@
     dialog.showModal();
   }
 
-  window.MMAPartyExport671 = {choose, excel, pdf, save};
+  window.MMAPartyExport671 = {choose, excel, pdf, save, daysSince, outstandingDate};
   const detail = document.getElementById('partyDetail');
   if (!detail) return;
   const button = document.createElement('button');
@@ -133,9 +156,16 @@
     return {
       title: document.getElementById('detailTitle').textContent.trim() + ' - ' + document.getElementById('detailRelatedTitle').textContent.trim(),
       subtitle: document.getElementById('detailSub').textContent.trim(),
-      columns: exportable.map(({cell}) => cell.textContent.trim()),
+      columns: exportable.flatMap(({cell}) => {
+        const label = cell.textContent.trim();
+        return label === "Outstanding" ? [label, "Number of Days"] : [label];
+      }),
       rows: Array.from(body.rows).filter(row => !row.hidden && row.getClientRects().length && row.cells.length === cells.length)
-        .map(row => exportable.map(({index}) => row.cells[index].textContent.trim()))
+        .map(row => exportable.flatMap(({cell, index}) => {
+          const value = row.cells[index].textContent.trim();
+          return cell.textContent.trim() === "Outstanding"
+            ? [value, daysSince(row.dataset.outstandingDate)] : [value];
+        }))
     };
   }));
 })();

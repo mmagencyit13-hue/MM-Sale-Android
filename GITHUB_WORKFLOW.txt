@@ -1,6 +1,14 @@
-name: Build MMA Tradelink V679 APK
+name: Build or publish MMA Tradelink APK
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the APK to the employee update service
+        type: boolean
+        default: false
+concurrency:
+  group: mma-android-release
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -26,6 +34,11 @@ jobs:
       - run: ./android/gradlew -p android assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: MMA-Tradelink-V679-APK
+          name: MMA-Tradelink-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+      - name: Publish APK to employee update service
+        if: inputs.publish
+        env:
+          MMA_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.MMA_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/publish-update.mjs

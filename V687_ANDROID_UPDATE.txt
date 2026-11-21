@@ -1,0 +1,12 @@
+MMA Tradelink Android V687
+
+V687 includes the V686 Buyer and Supplier search correction. The APK uses the same package ID and debug signing certificate as the V686 APK supplied here. If the installed APK was signed with a different key, confirm the certificate with the administrator before upgrading. The debug key is suitable only for compatibility with the existing internal test rollout. A production rollout should use an organization-controlled release key with a separate migration plan.
+
+One-time update server setup
+1. In the existing MMA Tradelink Supabase project, create a private Storage bucket named mma-app-updates. The bucket needs to allow APK and JSON uploads. Keep it private.
+2. Deploy the included Edge Function using supabase functions deploy mma-app-update --no-verify-jwt --project-ref vuogorddmdumjpquvuqz. The function validates the ERP employee session token with mma548_context before checking the version or issuing a short-lived download URL.
+3. In the private GitHub repository, add MMA_SUPABASE_SERVICE_ROLE_KEY to Actions secrets using the existing project's service-role key. Keep the key out of source code and restrict access to the workflow and its publishing branch.
+4. Use the included GitHub workflow and run it with Publish enabled to upload the built APK and its version metadata. For subsequent updates, increase versionCode and versionName in android/app/build.gradle before publishing. New releases retain the existing package ID and signing configuration.
+
+Installation and verification
+Install V687 once on a device with the V686 APK from this project. Sign in to the app and find Check for update under Account. A newer release gives a download prompt. The APK downloads in the browser and Android asks the employee to confirm installation. Test the initial install on one handset and then verify a newer release through the update flow before team rollout. The server and workflow settings still need to be configured in your accounts.

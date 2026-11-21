@@ -1,9 +1,8 @@
 (()=>{
     'use strict';
 
-    const activityKey='mma_activity551';
+    const {key: activityKey, expired}=window.MMASession551;
     const sessionKey='mma_sales_employee_session_v1';
-    const inactivityLimit=96*60*60*1000;
     let lastWrite=0;
     let expiryRequest=null;
     let lastTouch=0;
@@ -19,7 +18,7 @@
         if(!localStorage.getItem(sessionKey)||expiryRequest)return !expiryRequest;
         const now=Date.now();
         const last=Number(localStorage.getItem(activityKey));
-        if(last>0&&now-last>=inactivityLimit){
+        if(expired(last,now)){
             window.MMASaveScreen551?.();
             // logout clears local credentials before starting the network request.
             expiryRequest=ERPEmployeeAuth.logout().finally(()=>{expiryRequest=null});

@@ -35,5 +35,5 @@
  // Same pending-bill definition as desktop MMABill404: financial activity and no bill ADDED in billRange.
  function pendingBills(parties,rows,bills,financialRange,billRange){const grouped=new Map();for(const r of rows){const key=String(r.supplier_id);if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(r);}const billed=new Set(bills.filter(b=>{const d=b.created_at?new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(b.created_at)):'';return d>=billRange.from&&d<=billRange.to;}).map(b=>String(b.supplier_id)));return parties.filter(p=>{const x=totals(grouped.get(String(p.id))||[],financialRange.from,financialRange.to);if(![x.opening,x.sale,x.receiving].some(v=>Math.abs(v)>.005))return false;
   return !billed.has(String(p.id));}).sort((a,b)=>a.name.localeCompare(b.name));}
- window.MMAPartyFinance630={entries,totals,groups,pendingBills,amount};
+ window.MMAPartyFinance630={entries,totals,groups,pendingBills,amount,category};
 })();

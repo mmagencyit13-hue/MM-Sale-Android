@@ -148,6 +148,32 @@ public class MMADocumentsPlugin extends Plugin {
             call.reject("WhatsApp is not installed. Install WhatsApp or WhatsApp Business to share this PDF.");
         } catch (Exception e) { call.reject("PDF could not be shared. " + e.getMessage()); }
     }
+    @PluginMethod public void appVersion(PluginCall call) {
+        try {
+            android.content.pm.PackageInfo info = getContext().getPackageManager()
+                .getPackageInfo(getContext().getPackageName(), 0);
+            long code = android.os.Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode;
+            JSObject reply = new JSObject();
+            reply.put("versionCode", code);
+            call.resolve(reply);
+        } catch (Exception e) { call.reject("Could not read installed app version"); }
+    }
+
+    @PluginMethod public void openUpdate(PluginCall call) {
+        try {
+            Uri uri = Uri.parse(call.getString("url", ""));
+            String path = uri.getPath();
+            if (!"https".equals(uri.getScheme()) || !"vuogorddmdumjpquvuqz.supabase.co".equals(uri.getHost())
+                || uri.getPort() != -1 || uri.getUserInfo() != null || path == null
+                || !path.matches("/storage/v1/object/sign/mma-app-updates/MMA_Tradelink_V[0-9]+[.]apk")) {
+                call.reject("Invalid update download");
+                return;
+            }
+            getActivity().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            call.resolve();
+        } catch (Exception e) { call.reject("Could not open the update download"); }
+    }
+
     @PluginMethod public void openUrl(PluginCall call) {
         try {
             Uri uri = Uri.parse(call.getString("url", ""));

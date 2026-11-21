@@ -95,14 +95,14 @@
       sync();
       const data = entries.find(entry => String(entry.id) === id)?.payload.data;
       if (!allowed() || !data) return;
-      const rows = data.rows.map(row => ({name:row.name, amount:Number(row.outstanding)})).filter(row => Math.round(row.amount * 100) > 0);
+      const rows = data.rows.map(row => ({name:row.name, amount:Number(row.outstanding), outstandingDate:row.outstanding_date||row.last_received_date})).filter(row => Math.round(row.amount * 100) > 0);
       try {
         const blob = window.MMAOutstanding546.pdf({
           name:data.name, rows, positiveTotal:rows.reduce((total,row) => total + row.amount,0),
           total:Number(data.total), counterparty:'Buyer', asOf:date(data.as_of)
         });
         const filename = 'Outstanding_' + data.name.replace(/[^a-z0-9]+/gi,'_') + '.pdf';
-        await window.MMABuddyDocuments679.choose(blob,filename);
+        window.MMABuddyDocuments679.outstandingPDF(blob,filename);
       } catch (error) {
         status(error.message || 'PDF could not be downloaded.');
       }

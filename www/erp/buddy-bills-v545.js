@@ -24,10 +24,10 @@ async function total(name,fy){
 }
 
 async function sharedTotal(name,fy){const key=actor()+'|'+fy.from+'|'+name;if(pending.has(key))return pending.get(key);const job=total(name,fy).finally(()=>pending.delete(key));pending.set(key,job);return job;}
-async function breakdown(name){const data=await sharedTotal(name,period()),groups=new Map();const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-for(const e of data.entries){const d=String(e.date||'').slice(0,10);if(!d||d>today)continue;const id=e.supplier_id||'';groups.set(id,(groups.get(id)||0)+e.dr-e.cr);}
+async function breakdown(name){const data=await sharedTotal(name,period()),groups=new Map(),entriesBySupplier=new Map();const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+for(const e of data.entries){const d=String(e.date||'').slice(0,10);if(!d||d>today)continue;const id=e.supplier_id||'';groups.set(id,(groups.get(id)||0)+e.dr-e.cr);if(!entriesBySupplier.has(id))entriesBySupplier.set(id,[]);entriesBySupplier.get(id).push(e);}
 const client=typeof sb!=='undefined'?sb:window.sb;const ids=[...groups.keys()].filter(Boolean);const names=new Map();for(let i=0;i<ids.length;i+=100){const r=await client.from('suppliers').select('id,company_name').in('id',ids.slice(i,i+100));if(r.error)throw r.error;for(const x of r.data||[])names.set(x.id,x.company_name);}
-return [...groups].filter(([,amount])=>Math.abs(amount)>=.005).map(([id,amount])=>({supplier:id?(names.get(id)||'Supplier unavailable'):'Unassigned supplier',amount})).sort((a,b)=>a.supplier.localeCompare(b.supplier));}
+return [...groups].filter(([,amount])=>Math.abs(amount)>=.005).map(([id,amount])=>({supplier:id?(names.get(id)||'Supplier unavailable'):'Unassigned supplier',amount,outstandingDate:window.MMAPartyExport671.outstandingDate(entriesBySupplier.get(id),today)})).sort((a,b)=>a.supplier.localeCompare(b.supplier));}
 async function correct(rows){const fy=period();return Promise.all(rows.map(async h=>{
  const p=h.payload;if(p?.kind!=='text'||!/^Total bills\s*:/im.test(p.text||'')||!/^Outstanding\s*:/im.test(p.text||''))return h;
  const name=String(p.text).split(/\r?\n/)[0].trim();let label;
