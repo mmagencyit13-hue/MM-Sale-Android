@@ -1,6 +1,12 @@
 (()=>{'use strict';
 const norm=value=>String(value??'').normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-IN');
 window.MMABuyerSearch580={norm,matches:(text,query)=>norm(query).split(' ').every(word=>norm(text).includes(word))};
+ const gstKey=value=>String(value??'').replace(/[^a-z0-9]/gi,'').toUpperCase();
+ window.MMABuyerSearch580.matchesGST=function(row,query){
+   const term=gstKey(query);
+   return term.length>=3 && /\d/.test(term) && gstKey(row?.gst_no).includes(term);
+ };
+
 const prior=partyFiltered;
 partyFiltered=function(kind){if(kind!=='buyer')return prior.apply(this,arguments);const field=document.getElementById('bsearch'),query=field.value;let rows;try{field.value='';rows=prior.apply(this,arguments)}finally{field.value=query}return rows.filter(row=>MMABuyerSearch580.matches([row.company_name,row.buyer_code,row.buyer_group,row.city,row.owner_name,row.owner_mobile,row.gst_no,row.pan_no].join(' '),query))};
 // Keep the existing save/edit/GST/draft synchronization and the State picker UI.
