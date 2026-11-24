@@ -7,7 +7,28 @@ async function api(action,args={}){const business=segment();args={...args,busine
 function paint(){document.querySelector('[data-supplier-pin561]')?.remove();renderInbox();if(!existingBell){const badge=bell.querySelector('b');badge.hidden=!unread;badge.textContent=String(unread);bell.hidden=!actor;bell.setAttribute('aria-label','Supplier notifications, '+unread+' unread')}}
 function list(){box.querySelector('h2').textContent='Notifications · '+(segment()==='grey'?'Grey':'Normal');box.querySelector('[data-back566]').hidden=true;box.querySelector('[data-older566]').hidden=!rows.length;main.innerHTML=rows.length?rows.map(r=>'<button type="button" class="notice566 '+(!r.read_at?'unread566':'')+'" data-notice566="'+esc(r.id)+'"><strong>New Supplier · '+esc(r.supplier_name)+'</strong><small>'+esc(new Date(r.created_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}))+'</small><span>Payment: '+esc(r.payment_mode||'—')+' · Discount: '+esc(r.discount_percent)+'% · Days: '+esc(r.payment_days??'—')+'</span></button>').join(''):'<p>No supplier notifications.</p>'}
 async function closePush(id){try{const reg=await navigator.serviceWorker?.getRegistration();for(const n of await reg?.getNotifications()||[])if(n.data?.type==='mma-supplier-new'&&String(n.data.notice_id)===String(id)&&n.data.recipient_id===actor)n.close()}catch{}}
-async function openNotice(id){const mine=++version;status.textContent='Loading supplier details…';try{const d=await api('open',{id});if(mine!==version)return;const row=d.rows?.find(r=>String(r.id)===String(id));if(!row)throw Error('Notification unavailable');actor=d.actor;unread=d.unread;rows=d.rows||[];paint();box.querySelector('h2').textContent='New Supplier';main.innerHTML='<article class="detail566"><h3>'+esc(row.supplier_name)+'</h3><p>Payment Mode: <b>'+esc(row.payment_mode||'—')+'</b></p><p>Discount: <b>'+esc(row.discount_percent)+'%</b></p><p>Payment Days: <b>'+esc(row.payment_days??'—')+'</b></p>'+(Object.hasOwn(row,'commission_percent')?'<p>Commission: <b>'+esc(row.commission_percent)+'%</b></p>':'')+'</article>';box.querySelector('[data-back566]').hidden=false;box.querySelector('[data-older566]').hidden=true;status.textContent='';await closePush(id)}catch(e){if(mine===version)status.textContent=e.name==='AbortError'?'Request timed out. Tap Refresh to retry.':e.message}}
+async function supplierDetails(row){
+ const own={city_outer:row.city_outer,deals_in:row.deals_in};
+ if(!app||(own.city_outer&&own.deals_in))return own;
+ try{
+  const {suppliers=[]}=await ERPEmployeeAuth.app('catalog');
+  const matches=row.supplier_id
+   ? suppliers.filter(s=>String(s.id)===String(row.supplier_id))
+   : suppliers.filter(s=>String(s.company_name||'').trim().toLowerCase()===String(row.supplier_name||'').trim().toLowerCase());
+  const supplier=matches.length===1?matches[0]:null;
+  return {city_outer:own.city_outer||supplier?.city_outer,deals_in:own.deals_in||supplier?.deals_in};
+ }catch{return own}
+}
+async function openNotice(id){const mine=++version,noticeBusiness=segment();status.textContent='Loading supplier details…';try{const d=await api('open',{id});if(mine!==version||segment()!==noticeBusiness)return;const row=d.rows?.find(r=>String(r.id)===String(id));if(!row)throw Error('Notification unavailable');actor=d.actor;unread=d.unread;rows=d.rows||[];paint();box.querySelector('h2').textContent='New Supplier';main.innerHTML='<article class="detail566"><h3>'+esc(row.supplier_name)+'</h3><p>Payment Mode: <b>'+esc(row.payment_mode||'—')+'</b></p><p>Discount: <b>'+esc(row.discount_percent)+'%</b></p><p>Payment Days: <b>'+esc(row.payment_days??'—')+'</b></p>'+(Object.hasOwn(row,'commission_percent')?'<p>Commission: <b>'+esc(row.commission_percent)+'%</b></p>':'')+'<p>City/Outer: <b data-supplier-city566>—</b></p><p>Item: <b data-supplier-items566>—</b></p></article>';box.querySelector('[data-back566]').hidden=false;box.querySelector('[data-older566]').hidden=true;status.textContent='';await closePush(id);
+ const noticeActor=d.actor;
+ const details=await supplierDetails(row);
+ if(mine!==version||ERPEmployeeAuth.employee?.id!==noticeActor||segment()!==noticeBusiness)return;
+ const items=Array.isArray(details.deals_in)?details.deals_in.filter(Boolean).join(', '):details.deals_in;
+ const category=main.querySelector('[data-supplier-city566]');
+ const itemField=main.querySelector('[data-supplier-items566]');
+ if(category)category.textContent=details.city_outer||'—';
+ if(itemField)itemField.textContent=items||'—';
+ }catch(e){if(mine===version)status.textContent=e.name==='AbortError'?'Request timed out. Tap Refresh to retry.':e.message}}
 async function refresh(draw=false){if(busy||document.hidden||window.MMA548&&!window.MMA548.ready)return;busy=true;const business=segment();try{const e=await identity();if(!e){actor='';unread=0;rows=[];paint();return}const d=await api('list');if(segment()!==business)return;actor=d.actor;activeBusiness=business;unread=d.unread;rows=d.rows||[];paint();if(draw){list();status.textContent=''}}catch(e){if(draw)status.textContent=e.name==='AbortError'?'Request timed out. Tap Refresh to retry.':e.message}finally{busy=false}}
 async function openCenter(){if(!box.open)box.showModal();status.textContent='Loading notifications…';await refresh(true)}
 if(existingBell)bell.addEventListener('click',()=>{renderInbox();void refresh()});else bell.onclick=()=>void openCenter();box.querySelector('[data-close566]').onclick=()=>{version++;box.close()};box.querySelector('[data-back566]').onclick=()=>{version++;list();status.textContent=''};box.querySelector('[data-refresh566]').onclick=()=>void refresh(true);main.onclick=e=>{const target=e.target.closest('[data-notice566]');if(target)void openNotice(target.dataset.notice566)};

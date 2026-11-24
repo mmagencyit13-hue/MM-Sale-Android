@@ -113,7 +113,8 @@
     if (!session) return;
     polling=true;
     try { const data=await request('inbox'); if (sessionKey===key) publish(data); }
-    catch (error) { if (panel?.open) panel.querySelector('[role=status]').textContent=error.message; }
+    catch (error) { const status=q('buyerInboxStatus689');
+      if(status)status.textContent=error.message; }
     finally { polling=false; }
   }
   async function markReview(rows) {
@@ -152,6 +153,11 @@
     const heading=document.createElement('h3');
     heading.textContent='Buyer Approval'+(inbox?.unread?' ('+inbox.unread+')':'');
     list.append(heading);
+    const status=document.createElement('p');
+    status.id='buyerInboxStatus689';
+    status.setAttribute('role','status');
+    list.append(status);
+    const recipient=inbox?.actor;
     for (const row of reviewRows) {
       list.append(button('Review · '+row.company_name,async()=>{
         const existing=q('notificationDialog');
@@ -159,7 +165,7 @@
         if(panel?.open) panel.close();
         try {
           if(window.MMAAppTab410) await window.MMAAppTab410('chat');
-          await window.erp377ChatBridge.openApproval528({buyer_id:row.id,revision:row.revision,recipient_id:inbox.actor});
+          await window.erp377ChatBridge.openApproval528({buyer_id:row.id,revision:row.revision,recipient_id:recipient});
         } catch(error){alert(error.message);}
       }));
     }
@@ -196,7 +202,7 @@
     }
     paint();
     void refresh();
-    setInterval(()=>void refresh(),30000);
+    setInterval(()=>void refresh(),15000);
     document.addEventListener('visibilitychange',()=>void refresh());
   }
   window.MMABuyerWorkflow689={request,refresh,markReview,review,get count(){return inbox?.unread||0},get reviewUnread(){return inbox?.reviewUnread||0}};
