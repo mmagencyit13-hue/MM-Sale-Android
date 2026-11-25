@@ -1,4 +1,48 @@
-(()=>{"use strict";const key="mma_sales_employee_session_v1",listeners=new Set;let token=localStorage.getItem(key)||"",employee=null;async function call(op,args={},session=token){const transport=await MMARequest563.request(MMA_CONFIG.employeeGateway+"?op="+encodeURIComponent(op),{method:"POST",headers:{"Content-Type":"application/json",...session?{"x-erp-session":session}:{}},body:JSON.stringify(args)},{read:MMARequest563.isRead(op,args)}),r=transport.response,data=transport.data;if(r.status===401&&op==="session"&&session===token&&localStorage.getItem(key)===session){token="";employee=null;localStorage.removeItem(key);notify("SIGNED_OUT")}if(!r.ok)throw Object.assign(Error(data.message||data.error||"Request failed"),{status:r.status});return data}function user(){return employee?{id:employee.id,email:employee.team_email||employee.login_user_id,user_metadata:{full_name:employee.name}}:null}function notify(e){for(const f of listeners){try{f(e,{user:user()})}catch{}}}async function api(method,path,body,headers={}){try{const data=await call("api",{method:method,path:path,headers:headers,...body!==undefined?{body:body}:{}});return{data:data,error:null}}catch(error){return{data:null,error:error}}}class Query{constructor(table){this.table=table;this.params=new URLSearchParams;this.method="GET";this.headers={}}select(fields="*"){this.params.set("select",fields);if(this.method!=="GET")this.headers.Prefer="return=representation";return this}filter(k,op,v){this.params.append(k,op+"."+v);return this}eq(k,v){return this.filter(k,"eq",v)}neq(k,v){return this.filter(k,"neq",v)}gte(k,v){return this.filter(k,"gte",v)}lte(k,v){return this.filter(k,"lte",v)}lt(k,v){return this.filter(k,"lt",v)}in(k,vs){return this.filter(k,"in","("+vs.map(v=>'"'+String(v).replace(/["\\]/g,"\\$&")+'"').join(",")+")")}not(k,op,v){return this.filter(k,"not."+op,v)}order(k,options={}){const old=this.params.get("order");this.params.set("order",(old?old+",":"")+k+"."+(options.ascending===false?"desc":"asc"));return this}range(a,b){this.params.set("offset",a);this.params.set("limit",b-a+1);return this}limit(n){this.params.set("limit",n);return this}single(){this.one=true;return this}insert(body){this.method="POST";this.body=body;return this}update(body){this.method="PATCH";this.body=body;return this}then(ok,fail){return api(this.method,"/rest/v1/"+this.table+"?"+this.params,this.body,this.headers).then(r=>{if(this.one&&!r.error){const rows=Array.isArray(r.data)?r.data:[r.data];if(rows.length!==1)return{data:null,error:Error("Expected one record.")};r.data=rows[0]}return r}).then(ok,fail)}}window.sb={from:t=>new Query(t),rpc:(fn,args={})=>api("POST","/rest/v1/rpc/"+fn,args),auth:{async getUser(){return{data:{user:user()},error:null}},onAuthStateChange(f){listeners.add(f);return{data:{subscription:{unsubscribe(){listeners.delete(f)}}}}}}};window.ERPEmployeeAuth={async buddyBuyerOutstanding704(messageId){
+(()=>{"use strict";const key="mma_sales_employee_session_v1",listeners=new Set;let token=localStorage.getItem(key)||"",employee=null;async function call(op,args={},session=token){const transport=await MMARequest563.request(MMA_CONFIG.employeeGateway+"?op="+encodeURIComponent(op),{method:"POST",headers:{"Content-Type":"application/json",...session?{"x-erp-session":session}:{}},body:JSON.stringify(args)},{read:MMARequest563.isRead(op,args)}),r=transport.response,data=transport.data;if(r.status===401&&op==="session"&&session===token&&localStorage.getItem(key)===session){token="";employee=null;localStorage.removeItem(key);notify("SIGNED_OUT")}if(!r.ok)throw Object.assign(Error(data.message||data.error||"Request failed"),{status:r.status});return data}function user(){return employee?{id:employee.id,email:employee.team_email||employee.login_user_id,user_metadata:{full_name:employee.name}}:null}function notify(e){for(const f of listeners){try{f(e,{user:user()})}catch{}}}async function api(method,path,body,headers={}){try{const data=await call("api",{method:method,path:path,headers:headers,...body!==undefined?{body:body}:{}});return{data:data,error:null}}catch(error){return{data:null,error:error}}}class Query{constructor(table){this.table=table;this.params=new URLSearchParams;this.method="GET";this.headers={}}select(fields="*"){this.params.set("select",fields);if(this.method!=="GET")this.headers.Prefer="return=representation";return this}filter(k,op,v){this.params.append(k,op+"."+v);return this}eq(k,v){return this.filter(k,"eq",v)}neq(k,v){return this.filter(k,"neq",v)}gte(k,v){return this.filter(k,"gte",v)}lte(k,v){return this.filter(k,"lte",v)}lt(k,v){return this.filter(k,"lt",v)}in(k,vs){return this.filter(k,"in","("+vs.map(v=>'"'+String(v).replace(/["\\]/g,"\\$&")+'"').join(",")+")")}not(k,op,v){return this.filter(k,"not."+op,v)}order(k,options={}){const old=this.params.get("order");this.params.set("order",(old?old+",":"")+k+"."+(options.ascending===false?"desc":"asc"));return this}range(a,b){this.params.set("offset",a);this.params.set("limit",b-a+1);return this}limit(n){this.params.set("limit",n);return this}single(){this.one=true;return this}insert(body){this.method="POST";this.body=body;return this}update(body){this.method="PATCH";this.body=body;return this}then(ok,fail){return api(this.method,"/rest/v1/"+this.table+"?"+this.params,this.body,this.headers).then(r=>{if(this.one&&!r.error){const rows=Array.isArray(r.data)?r.data:[r.data];if(rows.length!==1)return{data:null,error:Error("Expected one record.")};r.data=rows[0]}return r}).then(ok,fail)}}window.sb={from:t=>new Query(t),rpc:(fn,args={})=>api("POST","/rest/v1/rpc/"+fn,args),auth:{async getUser(){return{data:{user:user()},error:null}},onAuthStateChange(f){listeners.add(f);return{data:{subscription:{unsubscribe(){listeners.delete(f)}}}}}}};window.ERPEmployeeAuth={
+ async pendingBuyerScope(business){
+  const session=token;
+  if(!session||!employee)throw Error("Please sign in to use Order Pending Qty.");
+  const endpoint=MMA_CONFIG.employeeGateway.replace(
+   "/functions/v1/employee-gateway","/rest/v1/rpc/mma729_pending_buyer_scope");
+  const {response,data}=await MMARequest563.request(endpoint,{
+   method:"POST",headers:{"Content-Type":"application/json",apikey:MMA_CONFIG.publicKey},
+   body:JSON.stringify({p_token:session,p_business:business})
+  },{read:true});
+  if(session!==token)throw Error("Login changed. Reopen Pending Qty.");
+  if(!response.ok||!Array.isArray(data?.buyer_ids))throw Error(data?.message||"Buyer assignments could not load.");
+  return {allBuyers:data.all_buyers===true,buyerIds:new Set(data.buyer_ids.map(String))};
+ },
+ async orderFabricAccess(business, buyerIds){
+  const session=token;
+  if(!session||!employee)throw Error("Please sign in to use Order Form.");
+  const endpoint=MMA_CONFIG.employeeGateway.replace(
+   "/functions/v1/employee-gateway","/rest/v1/rpc/mma727_order_fabric_access");
+  const {response,data}=await MMARequest563.request(endpoint,{
+   method:"POST",headers:{"Content-Type":"application/json",apikey:MMA_CONFIG.publicKey},
+   body:JSON.stringify({p_token:session,p_business:business,p_buyer_ids:buyerIds})
+  },{read:true});
+  if(session!==token)throw Error("Login changed. Reopen the app.");
+  if(!response.ok||!Array.isArray(data?.buyer_ids))throw Error(data?.message||"Grey Fabric access unavailable.");
+  return {enabled:data.enabled===true,buyerIds:new Set(data.buyer_ids)};
+ },
+ async orderApprovedBuyers(business, buyerIds){
+  const session = token;
+  if (!session || !employee) throw Error("Please sign in to check buyer approvals.");
+  if (!buyerIds.length) return new Set();
+  const endpoint = MMA_CONFIG.employeeGateway.replace(
+   "/functions/v1/employee-gateway", "/rest/v1/rpc/mma724_order_approved_buyers"
+  );
+  const {response, data} = await MMARequest563.request(endpoint,{
+   method:"POST",headers:{"Content-Type":"application/json",apikey:MMA_CONFIG.publicKey},
+   body:JSON.stringify({p_token:session,p_business:business,p_buyer_ids:buyerIds})
+  },{read:true});
+  if(session!==token) throw Error("Login changed. Reopen the app.");
+  if(!response.ok||!Array.isArray(data)){
+   throw Error(data?.code==="PGRST202"?"Run the V724 Buyer Approval SQL first.":data?.message||"Buyer approval status unavailable.");
+  }
+  return new Set(data);
+ },
+ async buddyBuyerOutstanding704(messageId){
  const session=token;
  if(!session||!employee)throw Error("Please sign in to MM Buddy");
  const endpoint=MMA_CONFIG.employeeGateway.replace("/functions/v1/employee-gateway","/rest/v1/rpc/mma704_buddy_buyer_outstanding_pdf");

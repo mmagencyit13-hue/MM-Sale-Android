@@ -4,6 +4,18 @@ async function saveLedgerLines579(rows){
  const base=document.getElementById('ledgerRef').value.trim(),existing=LE.find(x=>x.id===editId);
  const shared={buyer_id:document.getElementById('ledgerBuyer').value,supplier_id:document.getElementById('ledgerSupplier').value,entry_date:document.getElementById('ledgerEntryDate').value,source:existing?.source||'MANUAL'};
  const lines=rows.map((row,i)=>{const val=css=>row.querySelector(css).value,side=val('.letype'),amount=Number(val('.leamt'));if(!val('.ledate')||!val('.leamt').trim()||!Number.isFinite(amount)||amount<0||!['DEBIT','CREDIT'].includes(side))throw Error('Line '+(i+1)+': enter Ledger Date, amount and Debit/Credit.');return{ledger_date:val('.ledate'),particular:window.MMALedger575?.code(val('.lepart'),side)||requireLedgerParticular573(val('.lepart')),particular_name:window.MMALedger575?.label(val('.lepart'))||val('.lepart'),voucher_type:val('.levoucher'),voucher_no:val('.levno'),entry_type:side,amount}});
+ if (lines.some(line => line.entry_type === 'DEBIT')) {
+  const buyer = await MMAForm578.credit(shared.buyer_id);
+  if (document.getElementById('ledgerBuyer').value !== shared.buyer_id ||
+      document.getElementById('ledgerId').value !== editId ||
+      document.getElementById('ledgerForm').classList.contains('hide')) {
+   throw Error('Ledger form changed. Review the entry and submit again.');
+  }
+  if (buyer?._creditBlocked) {
+   alert(MMAForm578.creditMessage);
+   throw Error(MMAForm578.creditMessage);
+  }
+ }
  for(let i=0;i<lines.length;i++){
   const row=rows[i],line=lines[i];let id=row.dataset.v280SavedId||(i===0?editId:'');
   const ref=row.dataset.ref579||(i===0&&editId?(base||ledgerRef()):lines.length===1&&base?base:ledgerRef());row.dataset.ref579=ref;
