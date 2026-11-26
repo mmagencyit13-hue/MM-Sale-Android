@@ -134,7 +134,7 @@ public class MMADocumentsPlugin extends Plugin {
             String phone = call.getString("phone", "");
             if (!phone.matches("[0-9]{10,15}")) throw new Exception("Invalid WhatsApp number");
             File file = stage(call);
-            for (String pkg : new String[]{"com.whatsapp", "com.whatsapp.w4b"}) {
+            for (String pkg : new String[]{"com.whatsapp.w4b", "com.whatsapp"}) {
                 Intent send = intent(call, file, true);
                 send.setPackage(pkg);
                 // WhatsApp versions which accept jid open this contact; other versions show their recipient picker.
@@ -143,7 +143,7 @@ public class MMADocumentsPlugin extends Plugin {
                 try {
                     getActivity().startActivity(send);
                     JSObject reply = new JSObject(); reply.put("opened", true); reply.put("deliveryVerified", false); call.resolve(reply); return;
-                } catch (ActivityNotFoundException missing) { /* Try WhatsApp Business. */ }
+                } catch (ActivityNotFoundException missing) { /* Try the next supported WhatsApp app. */ }
             }
             call.reject("WhatsApp is not installed. Install WhatsApp or WhatsApp Business to share this PDF.");
         } catch (Exception e) { call.reject("PDF could not be shared. " + e.getMessage()); }
